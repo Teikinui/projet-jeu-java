@@ -1,6 +1,6 @@
-### c quoi un jeu
+### C'est quoi un jeu
 
-1. une boucle
-2. une monde
-3. des règles
-4. de l'habillage
+1. Une boucle
+2. Une monde
+3. Des règles
+4. De l'habillage
