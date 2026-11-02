@@ -1,3 +1,9 @@
+
+
+# Projet jeu Java
+
+## Idée : Jeu de rage
+
 ### C'est quoi un jeu
 
 1. Une boucle
