@@ -1,0 +1,9 @@
+plugins { id 'java-library' }
+
+java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }
+
+ext.gdxVersion = '1.14.2'
+
+dependencies {
+    api "com.badlogicgames.gdx:gdx:${gdxVersion}"
+}
