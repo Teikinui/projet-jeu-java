@@ -11,3 +11,5 @@ Projet Java libGDX minimal pour ordinateur, généré avec Gradle : un module `c
 Le projet utilise le JDK 21 déjà installé sur ton ordinateur. Le wrapper Gradle (`gradlew.bat`) sera ajouté dès que le téléchargement de Gradle sera accessible. En attendant, utilise Gradle intégré à IntelliJ pour synchroniser et lancer le projet.
 
 Le code du jeu commence dans `core/src/main/java/com/teikinui/game/MyGdxGame.java`.
+
+commande : gradlew.bat :lwjgl3:run
