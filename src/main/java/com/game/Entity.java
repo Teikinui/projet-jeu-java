@@ -10,15 +10,19 @@ public abstract class Entity {
     // Position de l'entité
     protected double x;
     protected double y;
+    protected double width;
+    protected double height;
 
     // Image et affichage
     protected Image spriteSheet;
     protected ImageView sprite;
 
     // Constructeur
-    public Entity(double x, double y, String imagePath) {
+    public Entity(double x, double y, double width, double height, String imagePath) {
         this.x = x;
         this.y = y;
+        this.width = width;
+        this.height = height;
 
         this.spriteSheet = new Image(
             Objects.requireNonNull(
@@ -31,6 +35,8 @@ public abstract class Entity {
 
         this.sprite.setTranslateX(x);
         this.sprite.setTranslateY(y);
+        this.sprite.setFitWidth(width);
+        this.sprite.setFitHeight(height);
     }
 
     // Getters
@@ -43,5 +49,5 @@ public abstract class Entity {
     }
 
     // Mise à jour de l'entité
-    public abstract void update();
+    public abstract void update(double dt);
 }
