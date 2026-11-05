@@ -1,0 +1,20 @@
+# Smoke test manuel temporaire, non exécuté par Gradle
+/core/src/test/java/com/teikinui/game/model/CollisionSystemSmokeTest.java
+
+# Cache Gradle et sorties générées
+.gradle/
+**/build/
+
+# Fichiers locaux IntelliJ
+.idea/
+*.iml
+out/
+
+# Archive de distribution Gradle téléchargée par erreur dans le dépôt
+gradle/wrapper/gradle-*-bin.zip
+
+# Fichiers générés par le système d'exploitation
+.DS_Store
+Thumbs.db
+
+resume.md
