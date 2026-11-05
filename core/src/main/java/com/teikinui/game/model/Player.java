@@ -23,7 +23,10 @@ public class Player extends Entity {
         update(deltaTime, false, false, false);
     }
 
-    /** Met à jour le déplacement horizontal, le saut et la gravité. */
+    /**
+     * Calcule les vitesses selon les commandes et la gravité. La position est ensuite
+     * appliquée par {@link CollisionSystem#move(Player, Level, float)}.
+     */
     public void update(float deltaTime, boolean left, boolean right, boolean jump) {
         if (left == right) {
             vx = 0f;
@@ -36,20 +39,33 @@ public class Player extends Entity {
             onGround = false;
         }
 
+        // La gravité négative ralentit la montée puis accélère la chute.
         vy += GRAVITY * deltaTime;
-        x += vx * deltaTime;
-        y += vy * deltaTime;
-
-        // Sol temporaire à Y=0 en attendant le système de collisions du niveau.
-        if (y <= GROUND_Y) {
-            y = GROUND_Y;
-            vy = 0f;
-            onGround = true;
-        }
     }
 
     public float getVx() {
         return vx;
+    }
+
+    /** Annule la vitesse verticale après un contact avec le sol. */
+    void land() {
+        this.vy = 0f;
+        this.onGround = true;
+    }
+
+    /** Annule la vitesse verticale après un contact avec un plafond. */
+    void stopVerticalMovement() {
+        vy = 0f;
+    }
+
+    /** Marque le joueur en l'air lorsqu'il ne touche plus de sol. */
+    void leaveGround() {
+        onGround = false;
+    }
+
+    /** Annule la vitesse horizontale après un contact avec un mur. */
+    void stopHorizontalMovement() {
+        vx = 0f;
     }
 
     public float getVy() {
