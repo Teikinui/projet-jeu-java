@@ -1,4 +1,4 @@
-package com.teikinui.game.model;
+package com.teikinui.game;
 
 /** Personnage contrôlé par le joueur, avec une gravité verticale simple. */
 public class Player extends Entity {

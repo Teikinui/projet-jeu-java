@@ -1,15 +1,19 @@
-# Java_projet — base libGDX
+# TripTrap — jeu libGDX
 
-Projet Java libGDX minimal pour ordinateur, généré avec Gradle : un module `core` pour le jeu et un module `lwjgl3` pour le lancer sur desktop.
+Jeu Java/libGDX pour ordinateur. Le projet Gradle contient `core` (code du jeu) et `lwjgl3` (lanceur desktop); les fichiers de niveaux et ressources sont dans `assets/`.
 
-## Lancer dans IntelliJ IDEA
+## Prérequis
 
-1. Ouvre le dossier `Java_projet` comme projet Gradle.
-2. Attends la synchronisation Gradle.
-3. Lance la tâche Gradle `lwjgl3 > Tasks > application > run`.
+Le projet utilise Java 21, configuré comme toolchain Gradle dans les modules `core` et `lwjgl3`.
 
-Le projet utilise le JDK 21 déjà installé sur ton ordinateur. Le wrapper Gradle (`gradlew.bat`) sera ajouté dès que le téléchargement de Gradle sera accessible. En attendant, utilise Gradle intégré à IntelliJ pour synchroniser et lancer le projet.
+## Lancer le jeu
 
-Le code du jeu commence dans `core/src/main/java/com/teikinui/game/MyGdxGame.java`.
+À la racine du projet, lance :
 
-commande : gradlew.bat :lwjgl3:run
+```text
+./gradlew :lwjgl3:run
+```
+
+Sous Windows, l’équivalent est `gradlew.bat :lwjgl3:run`. Dans IntelliJ IDEA, ouvre le dossier comme projet Gradle, synchronise-le, puis lance la tâche `lwjgl3 > application > run`.
+
+La classe de jeu est `core/src/main/java/com/teikinui/game/TripTrapGame.java`; la carte Tahiti est `assets/tahiti.txt`.

@@ -1,4 +1,4 @@
-package com.teikinui.game.model;
+package com.teikinui.game;
 
 /** Type d'une case de la grille du niveau. */
 public enum Tile {

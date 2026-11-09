@@ -1,4 +1,4 @@
-package com.teikinui.game.model;
+package com.teikinui.game;
 
 /** Base commune des objets du monde, indépendante de libGDX et de JavaFX. */
 public abstract class Entity {

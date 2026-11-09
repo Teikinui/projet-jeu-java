@@ -1,7 +1,4 @@
-package com.teikinui.game.level;
-
-import com.teikinui.game.model.Level;
-import com.teikinui.game.model.Tile;
+package com.teikinui.game;
 
 /** Convertit une carte texte en grille de tuiles. */
 public final class LevelLoader {

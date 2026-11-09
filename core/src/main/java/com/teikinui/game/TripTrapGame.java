@@ -5,11 +5,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.teikinui.game.level.LevelLoader;
-import com.teikinui.game.model.CollisionSystem;
-import com.teikinui.game.model.Level;
-import com.teikinui.game.model.Player;
-
 /** Point d'entrée du jeu. Ajoute ici les écrans et les règles de ton jeu. */
 public class TripTrapGame extends ApplicationAdapter {
     private static final float PLAYER_SIZE = 32f;

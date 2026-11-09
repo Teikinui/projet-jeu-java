@@ -1,4 +1,4 @@
-package com.teikinui.game.model;
+package com.teikinui.game;
 
 /** Grille d'un niveau. Les coordonnées commencent en bas à gauche. */
 public class Level {
