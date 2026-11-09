@@ -27,6 +27,14 @@ public class Level {
         return grid.length;
     }
 
+    /** Retourne le type de case; les coordonnées hors grille sont des murs. */
+    public Tile getTile(int col, int row) {
+        if (col < 0 || col >= getCols() || row < 0 || row >= getRows()) {
+            return Tile.WALL;
+        }
+        return grid[row][col];
+    }
+
     /** Les coordonnées hors de la grille sont considérées comme des murs. */
     public boolean isWall(int col, int row) {
         if (col < 0 || col >= getCols() || row < 0 || row >= getRows()) {
