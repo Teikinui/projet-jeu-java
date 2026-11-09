@@ -50,7 +50,7 @@ public final class CollisionSystem {
             int lastCol = floorToTile(targetX);
             for (int col = firstCol; col >= lastCol; col--) {
                 for (int row = firstRow; row <= lastRow; row++) {
-                    
+
                     if (level.isWall(col, row)) {
                         player.x = (col + 1) * Level.TILE;
                         player.stopHorizontalMovement();
