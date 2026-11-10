@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.teikinui.game.app.InputHandler;
 import com.teikinui.game.level.LevelLoader;
 import com.teikinui.game.model.CollisionSystem;
+import com.teikinui.game.model.GameConfig;
 import com.teikinui.game.model.Level;
 import com.teikinui.game.model.Player;
 import com.teikinui.game.model.Tile;
@@ -18,7 +19,6 @@ public final class PlayScreen implements Screen {
     private static final float VIEW_WIDTH = 960f;
     private static final float VIEW_HEIGHT = 540f;
     private static final float PLAYER_SIZE = 32f;
-    private static final float PLAYER_SPEED = 200f;
 
     private final InputHandler input = new InputHandler();
     private final CollisionSystem collisionSystem = new CollisionSystem();
@@ -46,17 +46,17 @@ public final class PlayScreen implements Screen {
                     startCol = col;
                     startRow = row;
                     return new Player(startCol * Level.TILE, startRow * Level.TILE,
-                            PLAYER_SIZE, PLAYER_SIZE, PLAYER_SPEED);
+                            PLAYER_SIZE, PLAYER_SIZE, GameConfig.RUN_SPEED);
                 }
             }
         }
         return new Player(startCol * Level.TILE, startRow * Level.TILE,
-                PLAYER_SIZE, PLAYER_SIZE, PLAYER_SPEED);
+                PLAYER_SIZE, PLAYER_SIZE, GameConfig.RUN_SPEED);
     }
 
     @Override
     public void render(float delta) {
-        player.update(delta, input.isLeft(), input.isRight(), input.isJump());
+        player.update(delta, input);
         collisionSystem.move(player, level, delta);
         followPlayer();
         draw();

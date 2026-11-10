@@ -2,8 +2,6 @@ package com.teikinui.game.model;
 
 /** Personnage contrôlé par le joueur, avec une gravité verticale simple. */
 public class Player extends Entity {
-    private static final float GRAVITY = -980f;
-    private static final float JUMP_SPEED = 600f;
     private static final float GROUND_Y = 0f;
 
     private final float moveSpeed;
@@ -23,6 +21,11 @@ public class Player extends Entity {
         update(deltaTime, false, false, false);
     }
 
+    /** Commandes injectables, sans dépendance au clavier libGDX. */
+    public void update(float deltaTime, PlayerInput input) {
+        update(deltaTime, input.isLeft(), input.isRight(), input.isJump());
+    }
+
     /**
      * Calcule les vitesses selon les commandes et la gravité. La position est ensuite
      * appliquée par {@link CollisionSystem#move(Player, Level, float)}.
@@ -35,12 +38,12 @@ public class Player extends Entity {
         }
 
         if (jump && onGround) {
-            vy = JUMP_SPEED;
+            vy = GameConfig.JUMP_SPEED;
             onGround = false;
         }
 
         // La gravité négative ralentit la montée puis accélère la chute.
-        vy += GRAVITY * deltaTime;
+        vy += GameConfig.GRAVITY * deltaTime;
     }
 
     public float getVx() {

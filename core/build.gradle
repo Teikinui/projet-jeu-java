@@ -1,4 +1,7 @@
-plugins { id 'java-library' }
+plugins {
+    id 'java-library'
+    id 'jacoco'
+}
 
 java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }
 
@@ -17,4 +20,13 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+    }
 }
