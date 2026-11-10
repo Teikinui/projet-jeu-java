@@ -10,6 +10,11 @@ import com.teikinui.game.app.InputHandler;
 import com.teikinui.game.level.LevelLoader;
 import com.teikinui.game.model.CollisionSystem;
 import com.teikinui.game.model.GameConfig;
+import com.teikinui.game.model.EventBus;
+import com.teikinui.game.model.GameSession;
+import com.teikinui.game.model.traps.Trap;
+import com.teikinui.game.model.traps.TrapType;
+import java.util.List;
 import com.teikinui.game.model.Level;
 import com.teikinui.game.model.Player;
 import com.teikinui.game.model.Tile;
@@ -26,6 +31,9 @@ public final class PlayScreen implements Screen {
     private ShapeRenderer shapeRenderer;
     private Level level;
     private Player player;
+    private List<Trap> traps;
+    private final EventBus events = new EventBus();
+    private final GameSession session = new GameSession();
 
     @Override
     public void show() {
@@ -34,6 +42,8 @@ public final class PlayScreen implements Screen {
         shapeRenderer = new ShapeRenderer();
         level = LevelLoader.fromString(Gdx.files.internal("assets/tahiti.txt").readString());
         player = createPlayerAtStart();
+        traps = level.createTraps(player);
+        events.subscribe(session);
         followPlayer();
     }
 
@@ -58,6 +68,10 @@ public final class PlayScreen implements Screen {
     public void render(float delta) {
         player.update(delta, input);
         collisionSystem.move(player, level, delta);
+        for (Trap trap : traps) {
+            trap.update(delta);
+            trap.onPlayerContact(player, events);
+        }
         followPlayer();
         draw();
     }
@@ -81,10 +95,22 @@ public final class PlayScreen implements Screen {
         for (int row = 0; row < level.getRows(); row++) {
             for (int col = 0; col < level.getCols(); col++) {
                 if (level.isWall(col, row)) {
+                    shapeRenderer.setColor(0.55f, 0.40f, 0.25f, 1f);
                     shapeRenderer.rect(col * Level.TILE, row * Level.TILE,
                             Level.TILE, Level.TILE);
+                } else if (level.getTrapLetter(col, row) == TrapType.COCONUT.getLetter()
+                        || level.getTrapLetter(col, row) == TrapType.CLOUD_SHARK.getLetter()
+                        || level.getTrapLetter(col, row) == TrapType.STARFISH.getLetter()) {
+                    // Repère du point de départ d'un projectile (sans asset graphique).
+                    shapeRenderer.setColor(0.3f, 0.5f, 0.65f, 1f);
+                    shapeRenderer.rect(col * Level.TILE + 12f, row * Level.TILE + 12f, 8f, 8f);
                 }
             }
+        }
+        for (Trap trap : traps) {
+            if (!trap.isVisible()) continue;
+            shapeRenderer.setColor(0.85f, 0.75f, 0.2f, 1f);
+            shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
         }
         shapeRenderer.setColor(1f, 0.44f, 0.38f, 1f);
         shapeRenderer.rect(player.getX(), player.getY(), player.getWidth(), player.getHeight());

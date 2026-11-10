@@ -22,16 +22,25 @@ public final class LevelLoader {
         }
 
         Tile[][] grid = new Tile[rows][cols];
+        char[][] traps = new char[rows][cols];
         for (int rowFromTop = 0; rowFromTop < rows; rowFromTop++) {
             if (lines[rowFromTop].length() != cols) {
                 throw new IllegalArgumentException("Toutes les lignes du niveau doivent avoir la même largeur.");
             }
             int rowFromBottom = rows - 1 - rowFromTop;
             for (int col = 0; col < cols; col++) {
-                grid[rowFromBottom][col] = Tile.fromChar(lines[rowFromTop].charAt(col));
+                char symbol = lines[rowFromTop].charAt(col);
+                grid[rowFromBottom][col] = Tile.fromChar(symbol);
+                if (TrapFactory.isTrap(symbol)) traps[rowFromBottom][col] = symbol;
             }
         }
 
-        return new Level(grid);
+        Level level = new Level(grid);
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                if (traps[row][col] != 0) level.setTrapLetter(col, row, traps[row][col]);
+            }
+        }
+        return level;
     }
 }

@@ -1,8 +1,13 @@
 package com.teikinui.game.model.traps;
 
-/** The 21 traps (one line per trap, added by lots 2 and 3). */
+/** Six pièges de Tahiti. Les lettres sont réservées dans la carte texte. */
 public enum TrapType {
-    ;
+    COCONUT('c', TrapFamily.FALLING, "coconut"),
+    STARFISH('s', TrapFamily.PROJECTILE, "starfish"),
+    QUICKSAND('q', TrapFamily.GROUND, "quicksand"),
+    RETURN_DOOR('d', TrapFamily.TELEPORT, "return_door"),
+    CLOUD_SHARK('h', TrapFamily.FALLING, "cloud_shark"),
+    FAKE_FLOOR('f', TrapFamily.GROUND, "fake_floor");
 
     private final char letter;
     private final TrapFamily family;

@@ -1,9 +1,12 @@
 package com.teikinui.game.model.traps;
 
 import com.teikinui.game.model.Entity;
+import com.teikinui.game.model.EventBus;
+import com.teikinui.game.model.Interactable;
+import com.teikinui.game.model.Player;
 
 /** Base pour les pièges déclenchés par une entité du jeu. */
-public abstract class Trap extends Entity {
+public abstract class Trap extends Entity implements Interactable {
     public enum State {
         WAITING,
         TRIGGERED,
@@ -11,9 +14,51 @@ public abstract class Trap extends Entity {
     }
 
     protected State state = State.WAITING;
+    protected final Player target;
+    protected float startX;
+    protected float startY;
+    private Trigger trigger;
+    private boolean visible = true;
+    private boolean marked = true;
 
-    protected Trap(float x, float y, float width, float height) {
+    protected Trap(float x, float y, float width, float height, Player target) {
         super(x, y, width, height);
+        this.target = target;
+    }
+
+    public void setStart(float x, float y) {
+        startX = x;
+        startY = y;
+    }
+
+    public void setTrigger(Trigger trigger) {
+        this.trigger = trigger;
+    }
+
+    public boolean isVisible() {
+        return visible && state != State.DONE;
+    }
+
+    /** Seuls les pièges déjà déclenchés peuvent blesser (ou téléporter). */
+    public boolean isActive() {
+        return state == State.TRIGGERED;
+    }
+
+    /** Le rendu peut dessiner un indice de la case même avant déclenchement. */
+    public boolean isMarked() {
+        return marked && state != State.DONE;
+    }
+
+    protected void setMarked(boolean marked) {
+        this.marked = marked;
+    }
+
+    protected void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
+    protected boolean triggeredByPlayer() {
+        return trigger != null && trigger.isTriggered(this, target);
     }
 
     protected abstract boolean isTriggered();
@@ -27,6 +72,15 @@ public abstract class Trap extends Entity {
         }
         if (state == State.TRIGGERED) {
             activate(deltaTime);
+        }
+    }
+
+    /** Par défaut, un piège consommé ne peut pas tuer deux fois. */
+    @Override
+    public void onPlayerContact(Player player, EventBus bus) {
+        if (isActive() && collidesWith(player)) {
+            bus.publish(com.teikinui.game.model.GameEvent.PLAYER_DIED);
+            state = State.DONE;
         }
     }
 

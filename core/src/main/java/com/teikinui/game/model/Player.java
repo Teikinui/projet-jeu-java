@@ -8,6 +8,7 @@ public class Player extends Entity {
     private float vx;
     private float vy;
     private boolean onGround;
+    private boolean slowedNextFrame;
 
     public Player(float x, float y, float width, float height, float moveSpeed) {
         super(x, y, width, height);
@@ -31,10 +32,12 @@ public class Player extends Entity {
      * appliquée par {@link CollisionSystem#move(Player, Level, float)}.
      */
     public void update(float deltaTime, boolean left, boolean right, boolean jump) {
+        float speed = slowedNextFrame ? moveSpeed * 0.5f : moveSpeed;
+        slowedNextFrame = false;
         if (left == right) {
             vx = 0f;
         } else {
-            vx = left ? -moveSpeed : moveSpeed;
+            vx = left ? -speed : speed;
         }
 
         if (jump && onGround) {
@@ -44,6 +47,21 @@ public class Player extends Entity {
 
         // La gravité négative ralentit la montée puis accélère la chute.
         vy += GameConfig.GRAVITY * deltaTime;
+    }
+
+    /** Ralentissement temporaire provoqué par le sable mouvant. */
+    public void slowNextFrame() {
+        slowedNextFrame = true;
+    }
+
+    /** Replace le joueur et remet à zéro sa vitesse (porte de retour). */
+    public void teleport(float x, float y) {
+        this.x = x;
+        this.y = y;
+        vx = 0f;
+        vy = 0f;
+        onGround = false;
+        slowedNextFrame = false;
     }
 
     public float getVx() {

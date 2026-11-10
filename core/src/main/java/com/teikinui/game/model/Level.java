@@ -1,10 +1,17 @@
 package com.teikinui.game.model;
 
+import com.teikinui.game.level.TrapFactory;
+import com.teikinui.game.model.traps.Trap;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /** Grille d'un niveau. Les coordonnées commencent en bas à gauche. */
 public class Level {
     public static final int TILE = 32;
 
     private final Tile[][] grid;
+    private final char[][] trapLetters;
 
     public Level(Tile[][] grid) {
         if (grid == null || grid.length == 0 || grid[0] == null || grid[0].length == 0) {
@@ -17,6 +24,53 @@ public class Level {
             }
         }
         this.grid = grid;
+        this.trapLetters = new char[grid.length][cols];
+    }
+
+    /** Enregistre une lettre de piège lors du chargement de la carte texte. */
+    public void setTrapLetter(int col, int row, char letter) {
+        if (!TrapFactory.isTrap(letter)) {
+            throw new IllegalArgumentException("Piège inconnu : " + letter);
+        }
+        trapLetters[row][col] = letter;
+    }
+
+    public char getTrapLetter(int col, int row) {
+        return trapLetters[row][col];
+    }
+
+    public float getStartX() {
+        for (int row = 0; row < getRows(); row++) {
+            for (int col = 0; col < getCols(); col++) {
+                if (grid[row][col] == Tile.START) return col * TILE;
+            }
+        }
+        return TILE;
+    }
+
+    public float getStartY() {
+        for (int row = 0; row < getRows(); row++) {
+            for (int col = 0; col < getCols(); col++) {
+                if (grid[row][col] == Tile.START) return row * TILE;
+            }
+        }
+        return 2 * TILE;
+    }
+
+    /** Instancie les pièges sur les cases de la carte, après la création du joueur. */
+    public List<Trap> createTraps(Player player) {
+        List<Trap> traps = new ArrayList<>();
+        for (int row = 0; row < getRows(); row++) {
+            for (int col = 0; col < getCols(); col++) {
+                char letter = trapLetters[row][col];
+                if (letter != 0) {
+                    Trap trap = TrapFactory.create(letter, col * TILE, row * TILE, player);
+                    trap.setStart(getStartX(), getStartY());
+                    traps.add(trap);
+                }
+            }
+        }
+        return traps;
     }
 
     public int getCols() {
