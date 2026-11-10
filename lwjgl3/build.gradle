@@ -18,4 +18,9 @@ dependencies {
     runtimeOnly "com.badlogicgames.gdx:gdx-platform:${gdxVersion}:natives-desktop"
 }
 
-tasks.named('run') { workingDir = rootProject.projectDir }
+tasks.named('run') {
+    workingDir = rootProject.projectDir
+    if (System.getProperty('os.name').toLowerCase().contains('mac')) {
+        jvmArgs '-XstartOnFirstThread'
+    }
+}
