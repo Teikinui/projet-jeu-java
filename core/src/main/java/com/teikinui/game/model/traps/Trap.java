@@ -1,4 +1,6 @@
-package com.teikinui.game.model;
+package com.teikinui.game.model.traps;
+
+import com.teikinui.game.model.Entity;
 
 /** Base pour les pièges déclenchés par une entité du jeu. */
 public abstract class Trap extends Entity {
