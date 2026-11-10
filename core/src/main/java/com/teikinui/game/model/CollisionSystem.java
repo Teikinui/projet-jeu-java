@@ -1,4 +1,4 @@
-package com.teikinui.game;
+package com.teikinui.game.model;
 
 /** Résout les déplacements du joueur contre les murs, sans dépendance LibGDX. */
 public final class CollisionSystem {

@@ -1,5 +1,5 @@
 # Smoke test manuel temporaire, non exécuté par Gradle
-/core/src/test/java/com/teikinui/game/CollisionSystemSmokeTest.java
+/core/src/test/java/com/teikinui/game/model/CollisionSystemSmokeTest.java
 
 # Cache Gradle et sorties générées
 .gradle/

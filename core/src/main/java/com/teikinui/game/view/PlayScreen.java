@@ -6,12 +6,12 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
-import com.teikinui.game.CollisionSystem;
-import com.teikinui.game.Level;
-import com.teikinui.game.LevelLoader;
-import com.teikinui.game.Player;
-import com.teikinui.game.Tile;
 import com.teikinui.game.app.InputHandler;
+import com.teikinui.game.level.LevelLoader;
+import com.teikinui.game.model.CollisionSystem;
+import com.teikinui.game.model.Level;
+import com.teikinui.game.model.Player;
+import com.teikinui.game.model.Tile;
 
 /** Écran de jeu qui charge le niveau, gère les commandes et dessine le monde. */
 public final class PlayScreen implements Screen {
