@@ -1,4 +1,4 @@
-package com.teikinui.game.level;
+package com.teikinui.game.model.traps.factory;
 
 import com.teikinui.game.model.Player;
 import com.teikinui.game.model.traps.Trap;

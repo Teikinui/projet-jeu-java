@@ -3,7 +3,7 @@ package com.teikinui.game.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.teikinui.game.level.TrapFactory;
+import com.teikinui.game.model.traps.factory.TrapFactory;
 import com.teikinui.game.model.traps.Trap;
 
 /** Grille d'un niveau. Les coordonnées commencent en bas à gauche. */

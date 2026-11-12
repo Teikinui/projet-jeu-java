@@ -7,7 +7,6 @@ public final class GameConfig {
     public static final float JUMP_SPEED = 540f;
     public static final float RUN_SPEED = 150f;
     public static final float GAME_DURATION = 480f;
-    public static final float TAUNT_DURATION = 0.5f;
     public static final int LEVEL_COLS = 30;
     public static final int LEVEL_ROWS = 17;
     public static final int VIEW_WIDTH = LEVEL_COLS * TILE;

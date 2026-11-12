@@ -10,8 +10,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import com.teikinui.game.level.LevelLoader;
-import com.teikinui.game.level.TrapFactory;
 import com.teikinui.game.model.traps.Trap;
+import com.teikinui.game.model.traps.factory.TrapFactory;
 
 class TahitiTrapsTest {
     private Player player() { return new Player(32f, 32f, 32f, 32f, GameConfig.RUN_SPEED); }

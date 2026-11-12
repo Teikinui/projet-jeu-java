@@ -5,6 +5,7 @@ import com.teikinui.game.model.EventBus;
 import com.teikinui.game.model.Interactable;
 import com.teikinui.game.model.Level;
 import com.teikinui.game.model.Player;
+import com.teikinui.game.model.traps.triggers.Trigger;
 
 /** Base pour les pièges déclenchés par une entité du jeu. */
 public abstract class Trap extends Entity implements Interactable {

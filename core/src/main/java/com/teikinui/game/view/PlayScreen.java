@@ -88,6 +88,11 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         }
     }
 
+    /** La victoire prend priorité si un objectif et un piège sont touchés ensemble. */
+    static boolean shouldRestartAfterDeath(boolean died, boolean goalReached) {
+        return died && !goalReached;
+    }
+
     @Override
     public void update(float dt) {
         float step = Math.min(dt, MAX_STEP);
@@ -115,10 +120,9 @@ public final class PlayScreen extends BaseScreen implements GameListener {
             } else {
                 loadLevel();
             }
-        } else if (died) {
+        } else if (shouldRestartAfterDeath(died, goalReached)) {
             died = false;
             loadLevel();
-            game.showTaunt();
         }
     }
 

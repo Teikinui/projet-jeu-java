@@ -1,4 +1,4 @@
-package com.teikinui.game.model.traps;
+package com.teikinui.game.model.traps.projectile;
 
 import com.teikinui.game.model.Player;
 

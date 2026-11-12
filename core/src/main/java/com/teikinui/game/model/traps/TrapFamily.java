@@ -1,6 +1,12 @@
 package com.teikinui.game.model.traps;
 
 import com.teikinui.game.model.Player;
+import com.teikinui.game.model.traps.falling.CloudShark;
+import com.teikinui.game.model.traps.falling.CocoFall;
+import com.teikinui.game.model.traps.ground.FakeFloorTrap;
+import com.teikinui.game.model.traps.ground.QuickSand;
+import com.teikinui.game.model.traps.ground.ReturnDoor;
+import com.teikinui.game.model.traps.projectile.Starfish;
 
 /** The trap families (one line per family, added by lots 2 and 3). */
 public enum TrapFamily implements TrapCreator {

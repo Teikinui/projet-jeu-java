@@ -8,9 +8,8 @@ import com.teikinui.game.TripTrapGame;
 import com.teikinui.game.model.GameConfig;
 
 /**
- * Un message plein écran : la moquerie après une mort, la fin du chrono
- * ou la victoire. Il disparaît après une durée donnée, ou quand on appuie
- * sur Entrée si la durée vaut 0. Ensuite, il lance l'action prévue.
+ * Un message de fin de partie : chrono écoulé ou victoire.
+ * Entrée lance ensuite l'action prévue.
  */
 public final class MessageScreen extends BaseScreen {
     private static final float[] BACKGROUND = {0.25f, 0.05f, 0.08f};
