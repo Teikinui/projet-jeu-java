@@ -30,6 +30,11 @@ public abstract class FallingBlock extends Trap {
         return detached;
     }
 
+    /** Vrai (par défaut) si le bloc devient un mur en touchant le sol. */
+    protected boolean staysAsWall() {
+        return true;
+    }
+
     @Override
     protected final boolean isTriggered() {
         return shouldFall();
@@ -47,6 +52,10 @@ public abstract class FallingBlock extends Trap {
         float floorTop = (belowRow + 1) * GameConfig.TILE;
         if (level.isWall(col, belowRow) && y <= floorTop) {
             y = floorTop;
+            if (!staysAsWall()) {
+                state = State.DONE;
+                return;
+            }
             if (collidesWith(target)) {
                 return;
             }

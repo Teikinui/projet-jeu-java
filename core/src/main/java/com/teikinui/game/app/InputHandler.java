@@ -15,6 +15,8 @@ public final class InputHandler implements PlayerInput {
     }
 
     public boolean isJump() {
-        return Gdx.input.isKeyPressed(Input.Keys.UP);
+        // Flèche du haut OU barre d'espace : les deux font sauter.
+        return Gdx.input.isKeyPressed(Input.Keys.UP)
+                || Gdx.input.isKeyPressed(Input.Keys.SPACE);
     }
 }

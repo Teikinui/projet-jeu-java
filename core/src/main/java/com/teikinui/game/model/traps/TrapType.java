@@ -10,7 +10,13 @@ public enum TrapType {
     FAKE_FLOOR('f', TrapFamily.GROUND, "fake_floor"),
     JAR('j', TrapFamily.FALLING, "jar"),
     DOOR_SLAM('o', TrapFamily.FALLING, "door_slam"),
-    CACTUS('k', TrapFamily.GROUND, "cactus");    private final char letter;
+    CACTUS('k', TrapFamily.GROUND, "cactus"),
+    SPIKE_FLOOR('e', TrapFamily.GROUND, "spike_floor"),
+    POP_SPIKE('i', TrapFamily.GROUND, "pop_spike"),
+    GROWING_SPIKE('y', TrapFamily.GROUND, "growing_spike"),
+    CRUMBLE_BLOCK('t', TrapFamily.FALLING, "crumble_block");
+
+    private final char letter;
     private final TrapFamily family;
     private final String spriteName;
 

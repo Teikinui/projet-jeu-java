@@ -20,8 +20,13 @@ import com.teikinui.game.model.GameTimer;
 import com.teikinui.game.model.Goal;
 import com.teikinui.game.model.Level;
 import com.teikinui.game.model.Player;
+import com.teikinui.game.model.PlayerInput;
+import com.teikinui.game.model.ReversedInput;
 import com.teikinui.game.model.traps.Cactus;
 import com.teikinui.game.model.traps.FallingBlock;
+import com.teikinui.game.model.traps.GrowingSpike;
+import com.teikinui.game.model.traps.PopSpike;
+import com.teikinui.game.model.traps.SpikeFloor;
 import com.teikinui.game.model.traps.Trap;
 import com.teikinui.game.model.traps.TrapType;
 
@@ -36,12 +41,13 @@ public final class PlayScreen extends BaseScreen implements GameListener {
     private final GameTimer timer;
     private final LevelManager levels;
     private final EventBus bus = new EventBus();
-    private final InputHandler input = new InputHandler();
+    private final InputHandler keyboard = new InputHandler();
     private final CollisionSystem collisionSystem = new CollisionSystem();
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();
     private final Hud hud;
 
     private LevelTheme theme;
+    private PlayerInput input;
     private int attempt;
     private Level level;
     private Player player;
@@ -76,6 +82,8 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         goal = level.createGoal();
         session.setCurrentLevel(theme.ordinal());
         setBackground(theme.getBackgroundColor());
+        // Vietnam : on enveloppe le clavier pour échanger gauche et droite (Décorateur).
+        input = theme.hasInvertedControls() ? new ReversedInput(keyboard) : keyboard;
     }
 
     /** On note seulement ce qui s'est passé ; on le traite à la fin de update(). */
@@ -173,8 +181,10 @@ public final class PlayScreen extends BaseScreen implements GameListener {
          if (trap instanceof FallingBlock) {
                 setColor(theme.getWallColor());
                 shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
-        } else if (trap instanceof Cactus) {
+        } else if (trap instanceof Cactus || trap instanceof PopSpike || trap instanceof SpikeFloor) {
              drawSpikes(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
+        } else if (trap instanceof GrowingSpike) {
+             drawPillar(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
         } else {
             shapeRenderer.setColor(0.85f, 0.75f, 0.2f, 1f);
             shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
@@ -188,6 +198,14 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         float half = width / 2f;
         shapeRenderer.triangle(x, y, x + half, y, x + half / 2f, y + height * 0.8f);
         shapeRenderer.triangle(x + half, y, x + width, y, x + half * 1.5f, y + height * 0.8f);
+    }
+
+    /** Pilier de pics : deux barres blanches côte à côte (comme dans la vidéo). */
+    private void drawPillar(float x, float y, float width, float height) {
+        shapeRenderer.setColor(0.95f, 0.95f, 0.9f, 1f);
+        float bar = width / 3f;
+        shapeRenderer.rect(x, y, bar, height);
+        shapeRenderer.rect(x + 2 * bar, y, bar, height);
     }
 
     private void setColor(float[] rgb) {

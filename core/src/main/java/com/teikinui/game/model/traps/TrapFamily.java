@@ -15,6 +15,7 @@ public enum TrapFamily implements TrapCreator {
         case CLOUD_SHARK -> new CloudShark(x, y, target);
         case JAR -> new Jar(x, y, target);
         case DOOR_SLAM -> new DoorSlam(x, y, target);
+        case CRUMBLE_BLOCK -> new CrumbleBlock(x, y, target);
         default -> throw new IllegalArgumentException("Piège incompatible : " + type);
     }),
     PROJECTILE((type, x, y, target) -> {
@@ -25,6 +26,9 @@ public enum TrapFamily implements TrapCreator {
         case QUICKSAND -> new QuickSand(x, y, target);
         case FAKE_FLOOR -> new FakeFloorTrap(x, y, target);
         case CACTUS -> new Cactus(x, y, target);
+        case SPIKE_FLOOR -> new SpikeFloor(x, y, target);
+        case POP_SPIKE -> new PopSpike(x, y, target);
+        case GROWING_SPIKE -> new GrowingSpike(x, y, target);
         default -> throw new IllegalArgumentException("Piège incompatible : " + type);
     }),
     TELEPORT((type, x, y, target) -> {

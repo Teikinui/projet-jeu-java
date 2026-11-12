@@ -17,7 +17,12 @@ public enum LevelTheme {
     TUNISIE("tunisie.txt", "Tunisie", "le piment rouge",
             new float[] {0.07f, 0.13f, 0.28f},
             new float[] {0.82f, 0.64f, 0.36f},
-            new float[] {0.85f, 0.10f, 0.10f});
+            new float[] {0.85f, 0.10f, 0.10f}),
+    VIETNAM("vietnam.txt", "Vietnam", "le chapeau conique",
+            new float[] {0.05f, 0.12f, 0.55f},
+            new float[] {0.30f, 0.55f, 0.28f},
+            new float[] {0.93f, 0.82f, 0.50f},
+            true);
 
     private final String fileName;
     private final String displayName;
@@ -25,9 +30,18 @@ public enum LevelTheme {
     private final float[] backgroundColor;
     private final float[] wallColor;
     private final float[] goalColor;
+    private final boolean invertedControls;
 
     LevelTheme(String fileName, String displayName, String goalName,
                float[] backgroundColor, float[] wallColor, float[] goalColor) {
+        this(fileName, displayName, goalName, backgroundColor, wallColor, goalColor, false);
+    }
+
+    /** Le dernier paramètre à true échange les flèches gauche et droite dans ce pays. */
+    LevelTheme(String fileName, String displayName, String goalName,
+               float[] backgroundColor, float[] wallColor, float[] goalColor,
+               boolean invertedControls) {
+        this.invertedControls = invertedControls;
         this.fileName = fileName;
         this.displayName = displayName;
         this.goalName = goalName;
@@ -65,5 +79,9 @@ public enum LevelTheme {
 
     public float[] getGoalColor() {
         return goalColor.clone();
+    }
+
+    public boolean hasInvertedControls() {
+        return invertedControls;
     }
 }
