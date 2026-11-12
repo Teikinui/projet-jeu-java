@@ -20,6 +20,8 @@ import com.teikinui.game.model.GameTimer;
 import com.teikinui.game.model.Goal;
 import com.teikinui.game.model.Level;
 import com.teikinui.game.model.Player;
+import com.teikinui.game.model.traps.Cactus;
+import com.teikinui.game.model.traps.FallingBlock;
 import com.teikinui.game.model.traps.Trap;
 import com.teikinui.game.model.traps.TrapType;
 
@@ -158,13 +160,30 @@ public final class PlayScreen extends BaseScreen implements GameListener {
                 || letter == TrapType.STARFISH.getLetter();
     }
 
+
     private void drawTraps() {
-        shapeRenderer.setColor(0.85f, 0.75f, 0.2f, 1f);
-        for (Trap trap : traps) {
-            if (trap.isVisible()) {
-                shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
-            }
+    for (Trap trap : traps) {
+        if (!trap.isVisible()) {
+            continue;
         }
+         if (trap instanceof FallingBlock) {
+                setColor(theme.getWallColor());
+                shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
+        } else if (trap instanceof Cactus) {
+             drawSpikes(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
+        } else {
+            shapeRenderer.setColor(0.85f, 0.75f, 0.2f, 1f);
+            shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
+        }
+    }
+    }
+
+    /** Deux pics blancs qui sortent du sol. */
+    private void drawSpikes(float x, float y, float width, float height) {
+        shapeRenderer.setColor(0.95f, 0.95f, 0.9f, 1f);
+        float half = width / 2f;
+        shapeRenderer.triangle(x, y, x + half, y, x + half / 2f, y + height * 0.8f);
+        shapeRenderer.triangle(x + half, y, x + width, y, x + half * 1.5f, y + height * 0.8f);
     }
 
     private void setColor(float[] rgb) {

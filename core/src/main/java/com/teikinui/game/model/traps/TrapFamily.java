@@ -8,6 +8,7 @@ public enum TrapFamily implements TrapCreator {
         case COCONUT -> new CocoFall(x, y, target);
         case CLOUD_SHARK -> new CloudShark(x, y, target);
         case JAR -> new Jar(x, y, target);
+        case DOOR_SLAM -> new DoorSlam(x, y, target);
         default -> throw new IllegalArgumentException("Piège incompatible : " + type);
     }),
     PROJECTILE((type, x, y, target) -> {
@@ -17,6 +18,7 @@ public enum TrapFamily implements TrapCreator {
     GROUND((type, x, y, target) -> switch (type) {
         case QUICKSAND -> new QuickSand(x, y, target);
         case FAKE_FLOOR -> new FakeFloorTrap(x, y, target);
+        case CACTUS -> new Cactus(x, y, target);
         default -> throw new IllegalArgumentException("Piège incompatible : " + type);
     }),
     TELEPORT((type, x, y, target) -> {

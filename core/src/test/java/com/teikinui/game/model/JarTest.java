@@ -38,17 +38,15 @@ class JarTest {
     }
 
     @Test
-    void theJarFallsWhenThePlayerApproachesAndBecomesAStep() {
+    void theJarFallsFastWhenThePlayerIsRightNextToItAndBecomesAStep() {
         Level level = LevelLoader.fromString(MAP);
-        Player player = new Player(32f, 32f, 32f, 32f, GameConfig.RUN_SPEED);
+        Player player = new Player(3 * 32f, 32f, 32f, 32f, GameConfig.RUN_SPEED);
         Trap jar = jarFor(level, player);
         play(jar, 0.5f);
         assertEquals(Trap.State.WAITING, jar.getState());
 
-        player.teleport(3 * 32f, 32f);
-        play(jar, 0.05f);
-        player.teleport(32f, 32f);
-        play(jar, 1f);
+        player.teleport(4 * 32f - 10f, 32f);
+        play(jar, 0.25f);
         assertFalse(level.isWall(5, 4));
         assertTrue(level.isWall(5, 1));
         assertEquals(Trap.State.DONE, jar.getState());
@@ -71,17 +69,17 @@ class JarTest {
     }
 
     @Test
-    void afterADeathTheJarFallsOneTileEarlier() {
-        Player player = new Player(32f, 32f, 32f, 32f, GameConfig.RUN_SPEED);
+    void afterADeathTheJarWaitsForThePlayerToComeCloser() {
+        Player player = new Player(4 * 32f - 12f, 32f, 32f, 32f, GameConfig.RUN_SPEED);
         Level firstTry = LevelLoader.fromString(MAP);
         Trap jar = jarFor(firstTry, player);
         jar.update(1f / 60f);
-        assertEquals(Trap.State.WAITING, jar.getState());
+        assertEquals(Trap.State.TRIGGERED, jar.getState());
 
         Level secondTry = LevelLoader.fromString(MAP);
         secondTry.setAttempt(1);
         Trap learningJar = jarFor(secondTry, player);
         learningJar.update(1f / 60f);
-        assertEquals(Trap.State.TRIGGERED, learningJar.getState());
+        assertEquals(Trap.State.WAITING, learningJar.getState());
     }
 }
