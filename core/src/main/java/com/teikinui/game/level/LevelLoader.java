@@ -2,6 +2,7 @@ package com.teikinui.game.level;
 
 import com.teikinui.game.model.Level;
 import com.teikinui.game.model.Tile;
+import com.teikinui.game.model.traps.factory.TrapFactory;
 
 /** Convertit une carte texte en grille de tuiles. */
 public final class LevelLoader {

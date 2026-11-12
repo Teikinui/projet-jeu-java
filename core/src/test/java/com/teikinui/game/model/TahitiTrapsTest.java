@@ -1,7 +1,7 @@
 package com.teikinui.game.model;
 
 import com.teikinui.game.level.LevelLoader;
-import com.teikinui.game.level.TrapFactory;
+import com.teikinui.game.model.traps.factory.TrapFactory;
 import com.teikinui.game.model.traps.Trap;
 import com.teikinui.game.model.traps.TrapType;
 import org.junit.jupiter.api.Test;

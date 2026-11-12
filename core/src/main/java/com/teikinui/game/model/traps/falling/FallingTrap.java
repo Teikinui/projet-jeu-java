@@ -1,4 +1,6 @@
-package com.teikinui.game.model.traps;
+package com.teikinui.game.model.traps.falling;
+
+import com.teikinui.game.model.traps.Trap;
 
 import com.teikinui.game.model.GameConfig;
 import com.teikinui.game.model.Player;
