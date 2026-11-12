@@ -1,5 +1,7 @@
 package com.teikinui.game.view;
 
+import java.util.List;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -20,8 +22,6 @@ import com.teikinui.game.model.Level;
 import com.teikinui.game.model.Player;
 import com.teikinui.game.model.traps.Trap;
 import com.teikinui.game.model.traps.TrapType;
-
-import java.util.List;
 
 /**
  * La partie : relie le niveau, le chrono, les collisions et l'affichage.
@@ -98,6 +98,7 @@ public final class PlayScreen extends BaseScreen implements GameListener {
             trap.update(step);
         }
         collisionSystem.checkContacts(player, traps, bus);
+        collisionSystem.checkFall(player, bus);
         collisionSystem.checkContacts(player, List.of(goal), bus);
 
         if (goalReached) {

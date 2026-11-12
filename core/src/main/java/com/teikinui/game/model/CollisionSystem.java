@@ -34,6 +34,13 @@ public final class CollisionSystem {
         }
     }
 
+    /** Si le joueur est tombé sous l'écran (dans un trou), il meurt. */
+    public void checkFall(Player player, EventBus bus) {
+        if (player.getY() + player.getHeight() < 0) {
+            bus.publish(GameEvent.PLAYER_DIED);
+        }
+    }
+
     /** Vérifie toutes les colonnes traversées par le joueur sur l'axe X. */
     private void moveX(Player player, Level level, float dt) {
         float vx = player.getVx();

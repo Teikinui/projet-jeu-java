@@ -3,6 +3,7 @@ package com.teikinui.game.model.traps;
 import com.teikinui.game.model.Entity;
 import com.teikinui.game.model.EventBus;
 import com.teikinui.game.model.Interactable;
+import com.teikinui.game.model.Level;
 import com.teikinui.game.model.Player;
 
 /** Base pour les pièges déclenchés par une entité du jeu. */
@@ -17,6 +18,7 @@ public abstract class Trap extends Entity implements Interactable {
     protected final Player target;
     protected float startX;
     protected float startY;
+    protected Level level;
     private Trigger trigger;
     private boolean visible = true;
     private boolean marked = true;
@@ -29,6 +31,11 @@ public abstract class Trap extends Entity implements Interactable {
     public void setStart(float x, float y) {
         startX = x;
         startY = y;
+    }
+
+    /** Le niveau où se trouve le piège : il peut y ajouter ou enlever des murs. */
+    public void setLevel(Level level) {
+        this.level = level;
     }
 
     public void setTrigger(Trigger trigger) {

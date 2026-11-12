@@ -78,6 +78,7 @@ public class Level {
                 if (letter != 0) {
                     Trap trap = TrapFactory.create(letter, col * TILE, row * TILE, player);
                     trap.setStart(getStartX(), getStartY());
+                    trap.setLevel(this);
                     traps.add(trap);
                 }
             }
@@ -102,10 +103,21 @@ public class Level {
     }
 
     /** Les coordonnées hors de la grille sont considérées comme des murs. */
-    public boolean isWall(int col, int row) {
-        if (col < 0 || col >= getCols() || row < 0 || row >= getRows()) {
+        public boolean isWall(int col, int row) {
+        if (row < 0) {
+            return false;
+        }
+        if (col < 0 || col >= getCols() || row >= getRows()) {
             return true;
         }
         return grid[row][col] == Tile.WALL;
+    }
+
+    /** Ajoute (true) ou enlève (false) un mur pendant la partie. */
+    public void setWall(int col, int row, boolean wall) {
+        if (col < 0 || col >= getCols() || row < 0 || row >= getRows()) {
+            return;
+        }
+        grid[row][col] = wall ? Tile.WALL : Tile.EMPTY;
     }
 }
