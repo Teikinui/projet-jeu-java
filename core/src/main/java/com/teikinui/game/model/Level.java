@@ -1,10 +1,10 @@
 package com.teikinui.game.model;
 
-import com.teikinui.game.level.TrapFactory;
-import com.teikinui.game.model.traps.Trap;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.teikinui.game.level.TrapFactory;
+import com.teikinui.game.model.traps.Trap;
 
 /** Grille d'un niveau. Les coordonnées commencent en bas à gauche. */
 public class Level {
@@ -55,6 +55,18 @@ public class Level {
             }
         }
         return 2 * TILE;
+    }
+
+        /** Crée l'objectif du niveau sur la case G de la carte texte. */
+    public Goal createGoal() {
+        for (int row = 0; row < getRows(); row++) {
+            for (int col = 0; col < getCols(); col++) {
+                if (grid[row][col] == Tile.GOAL) {
+                    return new Goal(col * TILE, row * TILE);
+                }
+            }
+        }
+        throw new IllegalStateException("Le niveau n'a pas d'objectif : il manque la lettre G.");
     }
 
     /** Instancie les pièges sur les cases de la carte, après la création du joueur. */

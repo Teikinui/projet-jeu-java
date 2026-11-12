@@ -1,5 +1,7 @@
 package com.teikinui.game.model;
 
+import java.util.List;
+
 /** Résout les déplacements du joueur contre les murs, sans dépendance LibGDX. */
 public final class CollisionSystem {
     // Petite marge pour éviter de compter une case touchée seulement par son bord.
@@ -16,6 +18,20 @@ public final class CollisionSystem {
     public void move(Player player, Level level, float dt) {
         moveX(player, level, dt);
         moveY(player, level, dt);
+    }
+
+        /**
+     * Prévient chaque objet interactif (pièges, objectif) que le joueur est là :
+     * chacun vérifie lui-même s'il est touché et réagit.
+     *
+     * @param player le joueur
+     * @param things les objets à prévenir
+     * @param bus le bus où publier les événements (mort, objectif atteint)
+     */
+    public void checkContacts(Player player, List<? extends Interactable> things, EventBus bus) {
+        for (Interactable thing : things) {
+            thing.onPlayerContact(player, bus);
+        }
     }
 
     /** Vérifie toutes les colonnes traversées par le joueur sur l'axe X. */

@@ -1,0 +1,69 @@
+package com.teikinui.game.level;
+
+/**
+ * Les pays du voyage, dans l'ordre. Chaque ligne donne le fichier du niveau,
+ * le nom affiché, l'objet à attraper et les couleurs (rouge, vert, bleu entre 0 et 1).
+ * Ajouter un pays = ajouter une ligne ici + un fichier .txt.
+ */
+public enum LevelTheme {
+    TAHITI("tahiti.txt", "Tahiti", "le palmier",
+            new float[] {0.10f, 0.12f, 0.16f},
+            new float[] {0.55f, 0.40f, 0.25f},
+            new float[] {0.20f, 0.70f, 0.30f}),
+    CHINE("chine.txt", "Chine", "le bol de ramen",
+            new float[] {0.12f, 0.08f, 0.08f},
+            new float[] {0.62f, 0.16f, 0.12f},
+            new float[] {0.95f, 0.90f, 0.80f}),
+    TUNISIE("tunisie.txt", "Tunisie", "le piment rouge",
+            new float[] {0.07f, 0.13f, 0.28f},
+            new float[] {0.82f, 0.64f, 0.36f},
+            new float[] {0.85f, 0.10f, 0.10f});
+
+    private final String fileName;
+    private final String displayName;
+    private final String goalName;
+    private final float[] backgroundColor;
+    private final float[] wallColor;
+    private final float[] goalColor;
+
+    LevelTheme(String fileName, String displayName, String goalName,
+               float[] backgroundColor, float[] wallColor, float[] goalColor) {
+        this.fileName = fileName;
+        this.displayName = displayName;
+        this.goalName = goalName;
+        this.backgroundColor = backgroundColor;
+        this.wallColor = wallColor;
+        this.goalColor = goalColor;
+    }
+
+    /** Le pays suivant, ou null si c'est le dernier. */
+    public LevelTheme next() {
+        LevelTheme[] all = values();
+        int nextIndex = ordinal() + 1;
+        return nextIndex < all.length ? all[nextIndex] : null;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public String getGoalName() {
+        return goalName;
+    }
+
+    public float[] getBackgroundColor() {
+        return backgroundColor.clone();
+    }
+
+    public float[] getWallColor() {
+        return wallColor.clone();
+    }
+
+    public float[] getGoalColor() {
+        return goalColor.clone();
+    }
+}

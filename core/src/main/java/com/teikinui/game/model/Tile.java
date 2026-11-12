@@ -4,12 +4,14 @@ package com.teikinui.game.model;
 public enum Tile {
     EMPTY,
     WALL,
-    START;
+    START,
+    GOAL;
 
     public static Tile fromChar(char symbol) {
         return switch (symbol) {
             case '#' -> WALL;
             case 'P' -> START;
+            case 'G' -> GOAL;
             default -> EMPTY;
         };
     }
