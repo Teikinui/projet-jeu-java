@@ -7,8 +7,8 @@ public enum TrapType {
     QUICKSAND('q', TrapFamily.GROUND, "quicksand"),
     RETURN_DOOR('d', TrapFamily.TELEPORT, "return_door"),
     CLOUD_SHARK('h', TrapFamily.FALLING, "cloud_shark"),
-    FAKE_FLOOR('f', TrapFamily.GROUND, "fake_floor");
-
+    FAKE_FLOOR('f', TrapFamily.GROUND, "fake_floor"),
+    JAR('j', TrapFamily.FALLING, "jar");
     private final char letter;
     private final TrapFamily family;
     private final String spriteName;

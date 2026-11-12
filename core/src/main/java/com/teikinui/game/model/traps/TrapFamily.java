@@ -7,6 +7,7 @@ public enum TrapFamily implements TrapCreator {
     FALLING((type, x, y, target) -> switch (type) {
         case COCONUT -> new CocoFall(x, y, target);
         case CLOUD_SHARK -> new CloudShark(x, y, target);
+        case JAR -> new Jar(x, y, target);
         default -> throw new IllegalArgumentException("Piège incompatible : " + type);
     }),
     PROJECTILE((type, x, y, target) -> {

@@ -12,6 +12,7 @@ public class Level {
 
     private final Tile[][] grid;
     private final char[][] trapLetters;
+    private int attempt;
 
     public Level(Tile[][] grid) {
         if (grid == null || grid.length == 0 || grid[0] == null || grid[0].length == 0) {
@@ -111,6 +112,15 @@ public class Level {
             return true;
         }
         return grid[row][col] == Tile.WALL;
+    }
+
+    /** Numéro de l'essai dans ce pays : 0 la première fois, puis 1, 2… après chaque mort. */
+    public int getAttempt() {
+        return attempt;
+    }
+
+    public void setAttempt(int attempt) {
+        this.attempt = attempt;
     }
 
     /** Ajoute (true) ou enlève (false) un mur pendant la partie. */

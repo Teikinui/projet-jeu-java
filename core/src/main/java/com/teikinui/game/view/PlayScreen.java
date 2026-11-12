@@ -40,6 +40,7 @@ public final class PlayScreen extends BaseScreen implements GameListener {
     private final Hud hud;
 
     private LevelTheme theme;
+    private int attempt;
     private Level level;
     private Player player;
     private List<Trap> traps;
@@ -61,9 +62,12 @@ public final class PlayScreen extends BaseScreen implements GameListener {
 
     /** (Re)charge le pays en cours : le joueur revient au départ, les pièges sont remis à zéro. */
     private void loadLevel() {
+        LevelTheme previous = theme;
         theme = levels.getCurrent();
+        attempt = theme == previous ? attempt + 1 : 0;
         String text = Gdx.files.internal("assets/" + theme.getFileName()).readString();
         level = LevelLoader.fromString(text);
+        level.setAttempt(attempt);
         player = new Player(level.getStartX(), level.getStartY(),
                 GameConfig.PLAYER_SIZE, GameConfig.PLAYER_SIZE, GameConfig.RUN_SPEED);
         traps = level.createTraps(player);

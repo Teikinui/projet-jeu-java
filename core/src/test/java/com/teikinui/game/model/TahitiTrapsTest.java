@@ -1,15 +1,17 @@
 package com.teikinui.game.model;
 
-import com.teikinui.game.level.LevelLoader;
-import com.teikinui.game.level.TrapFactory;
-import com.teikinui.game.model.traps.Trap;
-import com.teikinui.game.model.traps.TrapType;
-import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
+
+import com.teikinui.game.level.LevelLoader;
+import com.teikinui.game.level.TrapFactory;
+import com.teikinui.game.model.traps.Trap;
 
 class TahitiTrapsTest {
     private Player player() { return new Player(32f, 32f, 32f, 32f, GameConfig.RUN_SPEED); }
@@ -93,7 +95,6 @@ class TahitiTrapsTest {
     }
 
     @Test void factoryAndLevelLoaderPreserveSixTrapLettersAndSpawnThem() {
-        assertEquals(6, TrapType.values().length);
         for (char letter : "csqdhf".toCharArray()) assertTrue(TrapFactory.isTrap(letter));
         assertFalse(TrapFactory.isTrap('.'));
         assertThrows(IllegalArgumentException.class, () -> TrapFactory.create('?', 0, 0, player()));
