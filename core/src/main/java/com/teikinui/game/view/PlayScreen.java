@@ -23,8 +23,11 @@ import com.teikinui.game.model.Player;
 import com.teikinui.game.model.PlayerInput;
 import com.teikinui.game.model.ReversedInput;
 import com.teikinui.game.model.traps.Cactus;
+import com.teikinui.game.model.traps.FakeChili;
 import com.teikinui.game.model.traps.FallingBlock;
 import com.teikinui.game.model.traps.GrowingSpike;
+import com.teikinui.game.model.traps.InvisibleBlock;
+import com.teikinui.game.model.traps.Monkey;
 import com.teikinui.game.model.traps.PopSpike;
 import com.teikinui.game.model.traps.SpikeFloor;
 import com.teikinui.game.model.traps.Trap;
@@ -178,13 +181,19 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         if (!trap.isVisible()) {
             continue;
         }
-         if (trap instanceof FallingBlock) {
+         if (trap instanceof FallingBlock || trap instanceof InvisibleBlock) {
                 setColor(theme.getWallColor());
                 shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
         } else if (trap instanceof Cactus || trap instanceof PopSpike || trap instanceof SpikeFloor) {
              drawSpikes(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
         } else if (trap instanceof GrowingSpike) {
              drawPillar(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
+        } else if (trap instanceof FakeChili) {
+             // Dessiné exactement comme le vrai objectif : c'est tout le piège.
+             setColor(theme.getGoalColor());
+             shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
+        } else if (trap instanceof Monkey monkey) {
+             drawMonkey(monkey);
         } else {
             shapeRenderer.setColor(0.85f, 0.75f, 0.2f, 1f);
             shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
@@ -198,6 +207,16 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         float half = width / 2f;
         shapeRenderer.triangle(x, y, x + half, y, x + half / 2f, y + height * 0.8f);
         shapeRenderer.triangle(x + half, y, x + width, y, x + half * 1.5f, y + height * 0.8f);
+    }
+
+    /** Singe : un corps marron sous le plafond + le fruit vert qu'il lance. */
+    private void drawMonkey(Monkey monkey) {
+        shapeRenderer.setColor(0.45f, 0.30f, 0.18f, 1f);
+        shapeRenderer.rect(monkey.getHomeX() + 6f, monkey.getHomeY() + 10f, 20f, 20f);
+        shapeRenderer.setColor(0.85f, 0.70f, 0.55f, 1f);
+        shapeRenderer.rect(monkey.getHomeX() + 11f, monkey.getHomeY() + 14f, 10f, 8f);
+        shapeRenderer.setColor(0.55f, 0.75f, 0.20f, 1f);
+        shapeRenderer.rect(monkey.getX(), monkey.getY(), monkey.getWidth(), monkey.getHeight());
     }
 
     /** Pilier de pics : deux barres blanches côte à côte (comme dans la vidéo). */

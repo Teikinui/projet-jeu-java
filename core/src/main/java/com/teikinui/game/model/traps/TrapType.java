@@ -14,7 +14,11 @@ public enum TrapType {
     SPIKE_FLOOR('e', TrapFamily.GROUND, "spike_floor"),
     POP_SPIKE('i', TrapFamily.GROUND, "pop_spike"),
     GROWING_SPIKE('y', TrapFamily.GROUND, "growing_spike"),
-    CRUMBLE_BLOCK('t', TrapFamily.FALLING, "crumble_block");
+    CRUMBLE_BLOCK('t', TrapFamily.FALLING, "crumble_block"),
+    FAKE_CHILI('v', TrapFamily.GROUND, "fake_chili"),
+    INVISIBLE_BLOCK('u', TrapFamily.GROUND, "invisible_block"),
+    DUNE('w', TrapFamily.FALLING, "dune"),
+    MONKEY('z', TrapFamily.PROJECTILE, "monkey");
 
     private final char letter;
     private final TrapFamily family;
