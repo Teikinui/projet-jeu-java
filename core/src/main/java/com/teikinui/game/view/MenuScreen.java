@@ -33,7 +33,7 @@ public final class MenuScreen extends BaseScreen {
         game.getAssets().getFont().draw(batch, "Tahiti  >  Chine  >  Tunisie, en 8 minutes",
                 0, 290, width, Align.center, false);
         game.getAssets().getFont().draw(batch,
-                "Flèches gauche et droite : courir      Flèche du haut : sauter",
+                "Flèches gauche et droite : courir      flèche du haut ou barre Espace : sauter",
                 0, 220, width, Align.center, false);
         game.getAssets().getFont().draw(batch, "Appuie sur Entrée pour embarquer",
                 0, 130, width, Align.center, false);
