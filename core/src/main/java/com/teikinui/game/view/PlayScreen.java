@@ -1,6 +1,7 @@
 package com.teikinui.game.view;
 
 import java.util.List;
+import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -10,6 +11,7 @@ import com.teikinui.game.app.InputHandler;
 import com.teikinui.game.level.LevelLoader;
 import com.teikinui.game.level.LevelManager;
 import com.teikinui.game.level.LevelTheme;
+import com.teikinui.game.level.TahitiTrapPlacement;
 import com.teikinui.game.model.CollisionSystem;
 import com.teikinui.game.model.EventBus;
 import com.teikinui.game.model.GameConfig;
@@ -25,6 +27,7 @@ import com.teikinui.game.model.ReversedInput;
 import com.teikinui.game.model.traps.Cactus;
 import com.teikinui.game.model.traps.FallingBlock;
 import com.teikinui.game.model.traps.GrowingSpike;
+import com.teikinui.game.model.traps.GoalSpike;
 import com.teikinui.game.model.traps.PopSpike;
 import com.teikinui.game.model.traps.SpikeFloor;
 import com.teikinui.game.model.traps.Trap;
@@ -42,6 +45,7 @@ public final class PlayScreen extends BaseScreen implements GameListener {
     private final EventBus bus = new EventBus();
     private final InputHandler keyboard = new InputHandler();
     private final CollisionSystem collisionSystem = new CollisionSystem();
+    private final Random random = new Random();
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();
     private final Hud hud;
 
@@ -79,6 +83,9 @@ public final class PlayScreen extends BaseScreen implements GameListener {
                 GameConfig.PLAYER_SIZE, GameConfig.PLAYER_SIZE, GameConfig.RUN_SPEED);
         traps = level.createTraps(player);
         goal = level.createGoal();
+        if (theme == LevelTheme.TAHITI) {
+            traps = TahitiTrapPlacement.addThree(level, player, traps, random);
+        }
         session.setCurrentLevel(theme.ordinal());
         setBackground(theme.getBackgroundColor());
         // Vietnam : on enveloppe le clavier pour échanger gauche et droite (Décorateur).
@@ -112,7 +119,7 @@ public final class PlayScreen extends BaseScreen implements GameListener {
 
         player.update(step, input);
         collisionSystem.move(player, level, step);
-        moveTahitiGoalNearPlayer(theme, player, goal, level.getStartX(), level.getStartY());
+        moveTahitiGoalNearPlayer(theme, player, goal, level.getStartX(), level.getStartY(), level, traps);
         for (Trap trap : traps) {
             trap.update(step);
         }
@@ -144,6 +151,28 @@ public final class PlayScreen extends BaseScreen implements GameListener {
                 player.getY() - (goal.getY() + goal.getHeight())));
         return gapX <= GameConfig.TILE && gapY <= GameConfig.TILE
                 && goal.moveToStart(startX, startY);
+    }
+
+    /** Embuscade créée seulement après que G a quitté sa position initiale. */
+    static boolean moveTahitiGoalNearPlayer(LevelTheme theme, Player player, Goal goal,
+                                            float startX, float startY, Level level, List<Trap> traps) {
+        float oldX = goal.getX();
+        float oldY = goal.getY();
+        if (!moveTahitiGoalNearPlayer(theme, player, goal, startX, startY)) return false;
+        int row = (int)(oldY / Level.TILE);
+        int goalCol = (int)(oldX / Level.TILE);
+        int launchCol = -1;
+        for (int col = 0; col < goalCol; col++) {
+            if (level.getTrapLetter(col, row) == 's') launchCol = col;
+        }
+        if (launchCol >= 0) {
+            for (int col = launchCol + 1; col < goalCol; col++) {
+                GoalSpike spike = new GoalSpike(col * Level.TILE, row * Level.TILE, player);
+                spike.setLevel(level);
+                traps.add(spike);
+            }
+        }
+        return true;
     }
 
     @Override
@@ -183,7 +212,7 @@ public final class PlayScreen extends BaseScreen implements GameListener {
          if (trap instanceof FallingBlock) {
                 setColor(theme.getWallColor());
                 shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
-        } else if (trap instanceof Cactus || trap instanceof PopSpike || trap instanceof SpikeFloor) {
+        } else if (trap instanceof Cactus || trap instanceof PopSpike || trap instanceof SpikeFloor || trap instanceof GoalSpike) {
              drawSpikes(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
         } else if (trap instanceof GrowingSpike) {
              drawPillar(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
