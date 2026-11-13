@@ -28,7 +28,7 @@ import com.teikinui.game.model.traps.GrowingSpike;
 import com.teikinui.game.model.traps.PopSpike;
 import com.teikinui.game.model.traps.SpikeFloor;
 import com.teikinui.game.model.traps.Trap;
-import com.teikinui.game.model.traps.TrapType;
+import com.teikinui.game.model.traps.ground.ReturnDoor;
 
 /**
  * La partie : relie le niveau, le chrono, les collisions et l'affichage.
@@ -113,6 +113,7 @@ public final class PlayScreen extends BaseScreen implements GameListener {
 
         player.update(step, input);
         collisionSystem.move(player, level, step);
+        moveTahitiDoorNearGoal(theme, player, goal, traps);
         for (Trap trap : traps) {
             trap.update(step);
         }
@@ -132,6 +133,22 @@ public final class PlayScreen extends BaseScreen implements GameListener {
             died = false;
             loadLevel();
         }
+    }
+
+    /** À une case (écart entre rectangles) de G, la porte de Tahiti rejoint P. */
+    static boolean moveTahitiDoorNearGoal(LevelTheme theme, Player player, Goal goal,
+                                          List<? extends Trap> traps) {
+        if (theme != LevelTheme.TAHITI || goal.isReached()) return false;
+        float gapX = Math.max(0f, Math.max(goal.getX() - (player.getX() + player.getWidth()),
+                player.getX() - (goal.getX() + goal.getWidth())));
+        float gapY = Math.max(0f, Math.max(goal.getY() - (player.getY() + player.getHeight()),
+                player.getY() - (goal.getY() + goal.getHeight())));
+        if (gapX > GameConfig.TILE || gapY > GameConfig.TILE) return false;
+        boolean moved = false;
+        for (Trap trap : traps) {
+            if (trap instanceof ReturnDoor door) moved |= door.moveToStart();
+        }
+        return moved;
     }
 
     @Override
@@ -157,19 +174,9 @@ public final class PlayScreen extends BaseScreen implements GameListener {
                 if (level.isWall(col, row)) {
                     setColor(theme.getWallColor());
                     shapeRenderer.rect(col * Level.TILE, row * Level.TILE, Level.TILE, Level.TILE);
-                } else if (isLaunchPoint(level.getTrapLetter(col, row))) {
-                    shapeRenderer.setColor(0.3f, 0.5f, 0.65f, 1f);
-                    shapeRenderer.rect(col * Level.TILE + 12f, row * Level.TILE + 12f, 8f, 8f);
                 }
             }
         }
-    }
-
-    /** Petit repère sous les pièges qui tombent ou qui sont lancés (sans image pour l'instant). */
-    private boolean isLaunchPoint(char letter) {
-        return letter == TrapType.COCONUT.getLetter()
-                || letter == TrapType.CLOUD_SHARK.getLetter()
-                || letter == TrapType.STARFISH.getLetter();
     }
 
 

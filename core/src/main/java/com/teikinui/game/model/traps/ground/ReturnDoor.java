@@ -12,6 +12,14 @@ public final class ReturnDoor extends Trap {
         super(x, y, GameConfig.TILE, GameConfig.TILE, target);
     }
 
+    /** Déplace la porte au départ, sans déplacer le joueur et une seule fois. */
+    public boolean moveToStart() {
+        if (state == State.DONE || (x == startX && y == startY)) return false;
+        x = startX;
+        y = startY;
+        return true;
+    }
+
     @Override protected boolean isTriggered() { return collidesWith(target); }
     @Override protected void activate(float dt) { }
 
