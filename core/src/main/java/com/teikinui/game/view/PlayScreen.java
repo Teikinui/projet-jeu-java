@@ -28,7 +28,6 @@ import com.teikinui.game.model.traps.GrowingSpike;
 import com.teikinui.game.model.traps.PopSpike;
 import com.teikinui.game.model.traps.SpikeFloor;
 import com.teikinui.game.model.traps.Trap;
-import com.teikinui.game.model.traps.ground.ReturnDoor;
 
 /**
  * La partie : relie le niveau, le chrono, les collisions et l'affichage.
@@ -113,7 +112,7 @@ public final class PlayScreen extends BaseScreen implements GameListener {
 
         player.update(step, input);
         collisionSystem.move(player, level, step);
-        moveTahitiDoorNearGoal(theme, player, goal, traps);
+        moveTahitiGoalNearPlayer(theme, player, goal, level.getStartX(), level.getStartY());
         for (Trap trap : traps) {
             trap.update(step);
         }
@@ -135,20 +134,16 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         }
     }
 
-    /** À une case (écart entre rectangles) de G, la porte de Tahiti rejoint P. */
-    static boolean moveTahitiDoorNearGoal(LevelTheme theme, Player player, Goal goal,
-                                          List<? extends Trap> traps) {
+    /** À une case (écart entre rectangles) de G, l'objectif de Tahiti rejoint P une fois. */
+    static boolean moveTahitiGoalNearPlayer(LevelTheme theme, Player player, Goal goal,
+                                            float startX, float startY) {
         if (theme != LevelTheme.TAHITI || goal.isReached()) return false;
         float gapX = Math.max(0f, Math.max(goal.getX() - (player.getX() + player.getWidth()),
                 player.getX() - (goal.getX() + goal.getWidth())));
         float gapY = Math.max(0f, Math.max(goal.getY() - (player.getY() + player.getHeight()),
                 player.getY() - (goal.getY() + goal.getHeight())));
-        if (gapX > GameConfig.TILE || gapY > GameConfig.TILE) return false;
-        boolean moved = false;
-        for (Trap trap : traps) {
-            if (trap instanceof ReturnDoor door) moved |= door.moveToStart();
-        }
-        return moved;
+        return gapX <= GameConfig.TILE && gapY <= GameConfig.TILE
+                && goal.moveToStart(startX, startY);
     }
 
     @Override
