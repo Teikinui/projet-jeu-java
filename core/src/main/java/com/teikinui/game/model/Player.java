@@ -6,6 +6,8 @@ public class Player extends Entity {
     /** Croissant (France) : on court 60 % plus vite et on saute 15 % plus haut. */
     private static final float BOOST_SPEED = 1.6f;
     private static final float BOOST_JUMP = 1.15f;
+    /** Glace (Laponie) : la vitesse ne change que petit à petit, on glisse. */
+    private static final float ICE_GRIP = 3f;
 
     private final float moveSpeed;
     private float vx;
@@ -13,6 +15,7 @@ public class Player extends Entity {
     private boolean onGround;
     private boolean slowedNextFrame;
     private float boostTime;
+    private boolean icy;
 
     public Player(float x, float y, float width, float height, float moveSpeed) {
         super(x, y, width, height);
@@ -41,10 +44,15 @@ public class Player extends Entity {
             speed *= 0.5f;
         }
         slowedNextFrame = false;
-        if (left == right) {
-            vx = 0f;
+        float wanted = 0f;
+        if (left != right) {
+            wanted = left ? -speed : speed;
+        }
+        if (icy) {
+            // Sur la glace, on se rapproche doucement de la vitesse voulue : on glisse.
+            vx += (wanted - vx) * Math.min(1f, ICE_GRIP * deltaTime);
         } else {
-            vx = left ? -speed : speed;
+            vx = wanted;
         }
 
         if (jump && onGround) {
@@ -55,6 +63,15 @@ public class Player extends Entity {
         // La gravité négative ralentit la montée puis accélère la chute.
         vy += GameConfig.GRAVITY * deltaTime;
         boostTime = Math.max(0f, boostTime - deltaTime);
+    }
+
+    /** Active la glace : le joueur glisse (Laponie). */
+    public void setIcy(boolean icy) {
+        this.icy = icy;
+    }
+
+    public boolean isIcy() {
+        return icy;
     }
 
     /** Donne un boost (plus rapide, saute plus haut) pendant quelques secondes. */
