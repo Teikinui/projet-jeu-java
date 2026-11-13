@@ -25,10 +25,17 @@ import com.teikinui.game.model.Player;
 import com.teikinui.game.model.PlayerInput;
 import com.teikinui.game.model.ReversedInput;
 import com.teikinui.game.model.traps.Cactus;
+import com.teikinui.game.model.traps.Croissant;
+import com.teikinui.game.model.traps.Dervish;
+import com.teikinui.game.model.traps.FakeChili;
 import com.teikinui.game.model.traps.FallingBlock;
 import com.teikinui.game.model.traps.GrowingSpike;
 import com.teikinui.game.model.traps.GoalSpike;
+import com.teikinui.game.model.traps.InvisibleBlock;
+import com.teikinui.game.model.traps.Loukoum;
+import com.teikinui.game.model.traps.Monkey;
 import com.teikinui.game.model.traps.PopSpike;
+import com.teikinui.game.model.traps.SimitVendor;
 import com.teikinui.game.model.traps.SpikeFloor;
 import com.teikinui.game.model.traps.Trap;
 
@@ -183,7 +190,12 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         drawTraps();
         setColor(theme.getGoalColor());
         shapeRenderer.rect(goal.getX(), goal.getY(), goal.getWidth(), goal.getHeight());
-        shapeRenderer.setColor(1f, 0.44f, 0.38f, 1f);
+        if (player.isBoosted()) {
+            // Boosté par le croissant : le joueur devient doré.
+            shapeRenderer.setColor(1f, 0.80f, 0.25f, 1f);
+        } else {
+            shapeRenderer.setColor(1f, 0.44f, 0.38f, 1f);
+        }
         shapeRenderer.rect(player.getX(), player.getY(), player.getWidth(), player.getHeight());
         shapeRenderer.end();
 
@@ -209,13 +221,28 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         if (!trap.isVisible()) {
             continue;
         }
-         if (trap instanceof FallingBlock) {
+         if (trap instanceof FallingBlock || trap instanceof InvisibleBlock) {
                 setColor(theme.getWallColor());
                 shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
         } else if (trap instanceof Cactus || trap instanceof PopSpike || trap instanceof SpikeFloor || trap instanceof GoalSpike) {
              drawSpikes(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
         } else if (trap instanceof GrowingSpike) {
              drawPillar(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
+        } else if (trap instanceof FakeChili) {
+             // Dessiné exactement comme le vrai objectif : c'est tout le piège.
+             setColor(theme.getGoalColor());
+             shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
+        } else if (trap instanceof Monkey monkey) {
+             drawMonkey(monkey);
+        } else if (trap instanceof Croissant croissant) {
+             drawPainting(croissant);
+        } else if (trap instanceof Dervish dervish) {
+             drawDervish(dervish);
+        } else if (trap instanceof SimitVendor vendor) {
+             drawSimitVendor(vendor);
+        } else if (trap instanceof Loukoum) {
+             shapeRenderer.setColor(0.95f, 0.55f, 0.70f, 1f);
+             shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
         } else {
             shapeRenderer.setColor(0.85f, 0.75f, 0.2f, 1f);
             shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
@@ -229,6 +256,50 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         float half = width / 2f;
         shapeRenderer.triangle(x, y, x + half, y, x + half / 2f, y + height * 0.8f);
         shapeRenderer.triangle(x + half, y, x + width, y, x + half * 1.5f, y + height * 0.8f);
+    }
+
+    /** Singe : un corps marron sous le plafond + le fruit vert qu'il lance. */
+    private void drawMonkey(Monkey monkey) {
+        shapeRenderer.setColor(0.45f, 0.30f, 0.18f, 1f);
+        shapeRenderer.rect(monkey.getHomeX() + 6f, monkey.getHomeY() + 10f, 20f, 20f);
+        shapeRenderer.setColor(0.85f, 0.70f, 0.55f, 1f);
+        shapeRenderer.rect(monkey.getHomeX() + 11f, monkey.getHomeY() + 14f, 10f, 8f);
+        shapeRenderer.setColor(0.55f, 0.75f, 0.20f, 1f);
+        shapeRenderer.rect(monkey.getX(), monkey.getY(), monkey.getWidth(), monkey.getHeight());
+    }
+
+    /** Tableau doré accroché au mur, avec le croissant dedans tant qu'il n'est pas mangé. */
+    private void drawPainting(Croissant croissant) {
+        float x = croissant.getX() - 13f;
+        float y = croissant.getY() - 12f;
+        shapeRenderer.setColor(0.85f, 0.68f, 0.25f, 1f);
+        shapeRenderer.rect(x, y, 48f, 40f);
+        shapeRenderer.setColor(0.20f, 0.25f, 0.35f, 1f);
+        shapeRenderer.rect(x + 5f, y + 5f, 38f, 30f);
+        if (!croissant.isEaten()) {
+            shapeRenderer.setColor(0.90f, 0.60f, 0.20f, 1f);
+            shapeRenderer.rect(croissant.getX(), croissant.getY(), croissant.getWidth(), croissant.getHeight());
+        }
+    }
+
+    /** Derviche : longue robe blanche qui tourne (elle s'élargit et se resserre) + chapeau. */
+    private void drawDervish(Dervish dervish) {
+        float x = dervish.getX();
+        float y = dervish.getY();
+        float w = dervish.getWidth();
+        float open = 4f * (float) Math.abs(Math.sin(Math.toRadians(dervish.getSpin())));
+        shapeRenderer.setColor(0.95f, 0.95f, 0.92f, 1f);
+        shapeRenderer.triangle(x - open, y, x + w + open, y, x + w / 2f, y + 22f);
+        shapeRenderer.setColor(0.55f, 0.35f, 0.25f, 1f);
+        shapeRenderer.rect(x + w / 2f - 4f, y + 20f, 8f, 10f);
+    }
+
+    /** Vendeur de simits : un corps rouge + le simit (anneau brun) qu'il lance. */
+    private void drawSimitVendor(SimitVendor vendor) {
+        shapeRenderer.setColor(0.75f, 0.15f, 0.15f, 1f);
+        shapeRenderer.rect(vendor.getHomeX() + 6f, vendor.getHomeY(), 20f, 28f);
+        shapeRenderer.setColor(0.70f, 0.45f, 0.20f, 1f);
+        shapeRenderer.rect(vendor.getX(), vendor.getY(), vendor.getWidth(), vendor.getHeight());
     }
 
     /** Pilier de pics : deux barres blanches côte à côte (comme dans la vidéo). */

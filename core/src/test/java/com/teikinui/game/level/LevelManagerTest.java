@@ -9,7 +9,7 @@ import com.teikinui.game.model.GameEvent;
 
 class LevelManagerTest {
     @Test
-    void theTripGoesTahitiThenChinaThenTunisiaThenVietnam() {
+    void theTripGoesFromTahitiToFrance() {
         LevelManager levels = new LevelManager();
         assertEquals(LevelTheme.TAHITI, levels.getCurrent());
         levels.onEvent(GameEvent.GOAL_REACHED);
@@ -18,10 +18,16 @@ class LevelManagerTest {
         assertEquals(LevelTheme.TUNISIE, levels.getCurrent());
         levels.onEvent(GameEvent.GOAL_REACHED);
         assertEquals(LevelTheme.VIETNAM, levels.getCurrent());
+        levels.onEvent(GameEvent.GOAL_REACHED);
+        assertEquals(LevelTheme.SRI_LANKA, levels.getCurrent());
+        levels.onEvent(GameEvent.GOAL_REACHED);
+        assertEquals(LevelTheme.TURQUIE, levels.getCurrent());
+        levels.onEvent(GameEvent.GOAL_REACHED);
+        assertEquals(LevelTheme.FRANCE, levels.getCurrent());
         assertFalse(levels.isFinished());
         levels.onEvent(GameEvent.GOAL_REACHED);
         assertTrue(levels.isFinished());
-        assertEquals(LevelTheme.VIETNAM, levels.getCurrent());
+        assertEquals(LevelTheme.FRANCE, levels.getCurrent());
     }
 
     @Test
@@ -30,6 +36,15 @@ class LevelManagerTest {
         levels.onEvent(GameEvent.PLAYER_DIED);
         levels.onEvent(GameEvent.TIME_UP);
         assertEquals(LevelTheme.TAHITI, levels.getCurrent());
+        assertFalse(levels.isFinished());
+    }
+
+    @Test
+    void theTripCanStartFromTheCountryChosenInTheMenu() {
+        LevelManager levels = new LevelManager(LevelTheme.VIETNAM);
+        assertEquals(LevelTheme.VIETNAM, levels.getCurrent());
+        levels.onEvent(GameEvent.GOAL_REACHED);
+        assertEquals(LevelTheme.SRI_LANKA, levels.getCurrent());
         assertFalse(levels.isFinished());
     }
 }

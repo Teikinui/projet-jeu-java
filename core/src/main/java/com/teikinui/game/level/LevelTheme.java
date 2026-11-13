@@ -22,7 +22,19 @@ public enum LevelTheme {
             new float[] {0.05f, 0.12f, 0.55f},
             new float[] {0.30f, 0.55f, 0.28f},
             new float[] {0.93f, 0.82f, 0.50f},
-            true);
+            true),
+    SRI_LANKA("srilanka.txt", "Sri Lanka", "le piment",
+            new float[] {0.08f, 0.22f, 0.14f},
+            new float[] {0.72f, 0.40f, 0.22f},
+            new float[] {0.85f, 0.10f, 0.10f}),
+    TURQUIE("turquie.txt", "Turquie", "la lampe turque",
+            new float[] {0.04f, 0.28f, 0.30f},
+            new float[] {0.80f, 0.55f, 0.45f},
+            new float[] {0.95f, 0.75f, 0.20f}),
+    FRANCE("france.txt", "France", "la tour Eiffel",
+            new float[] {0.08f, 0.10f, 0.25f},
+            new float[] {0.80f, 0.76f, 0.66f},
+            new float[] {0.80f, 0.62f, 0.30f});
 
     private final String fileName;
     private final String displayName;

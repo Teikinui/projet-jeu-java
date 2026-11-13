@@ -3,12 +3,16 @@ package com.teikinui.game.model;
 /** Personnage contrôlé par le joueur, avec une gravité verticale simple. */
 public class Player extends Entity {
     private static final float GROUND_Y = 0f;
+    /** Croissant (France) : on court 60 % plus vite et on saute 15 % plus haut. */
+    private static final float BOOST_SPEED = 1.6f;
+    private static final float BOOST_JUMP = 1.15f;
 
     private final float moveSpeed;
     private float vx;
     private float vy;
     private boolean onGround;
     private boolean slowedNextFrame;
+    private float boostTime;
 
     public Player(float x, float y, float width, float height, float moveSpeed) {
         super(x, y, width, height);
@@ -32,7 +36,10 @@ public class Player extends Entity {
      * appliquée par {@link CollisionSystem#move(Player, Level, float)}.
      */
     public void update(float deltaTime, boolean left, boolean right, boolean jump) {
-        float speed = slowedNextFrame ? moveSpeed * 0.5f : moveSpeed;
+        float speed = isBoosted() ? moveSpeed * BOOST_SPEED : moveSpeed;
+        if (slowedNextFrame) {
+            speed *= 0.5f;
+        }
         slowedNextFrame = false;
         if (left == right) {
             vx = 0f;
@@ -41,12 +48,22 @@ public class Player extends Entity {
         }
 
         if (jump && onGround) {
-            vy = GameConfig.JUMP_SPEED;
+            vy = isBoosted() ? GameConfig.JUMP_SPEED * BOOST_JUMP : GameConfig.JUMP_SPEED;
             onGround = false;
         }
 
         // La gravité négative ralentit la montée puis accélère la chute.
         vy += GameConfig.GRAVITY * deltaTime;
+        boostTime = Math.max(0f, boostTime - deltaTime);
+    }
+
+    /** Donne un boost (plus rapide, saute plus haut) pendant quelques secondes. */
+    public void boost(float seconds) {
+        boostTime = seconds;
+    }
+
+    public boolean isBoosted() {
+        return boostTime > 0f;
     }
 
     /** Ralentissement temporaire provoqué par le sable mouvant. */
