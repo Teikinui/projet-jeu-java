@@ -58,7 +58,8 @@ public final class MenuScreen extends BaseScreen {
         }
         game.getAssets().getFont().draw(batch, "Haut / Bas : choisir le pays      Entrée : embarquer",
                 0, 105, width, Align.center, false);
-        game.getAssets().getFont().draw(batch, "En jeu : Gauche / Droite pour courir, Haut ou Espace pour sauter",
+        game.getAssets().getFont().draw(batch,
+                "En jeu : Gauche / Droite : courir, flèche du haut ou barre Espace : sauter",
                 0, 70, width, Align.center, false);
         batch.end();
     }
