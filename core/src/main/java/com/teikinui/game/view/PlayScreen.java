@@ -1,8 +1,10 @@
 package com.teikinui.game.view;
 
 import java.util.List;
+import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.teikinui.game.TripTrapGame;
@@ -10,6 +12,7 @@ import com.teikinui.game.app.InputHandler;
 import com.teikinui.game.level.LevelLoader;
 import com.teikinui.game.level.LevelManager;
 import com.teikinui.game.level.LevelTheme;
+import com.teikinui.game.level.TahitiTrapPlacement;
 import com.teikinui.game.model.CollisionSystem;
 import com.teikinui.game.model.EventBus;
 import com.teikinui.game.model.GameConfig;
@@ -30,17 +33,19 @@ import com.teikinui.game.model.traps.FakeChili;
 import com.teikinui.game.model.traps.FakeSlab;
 import com.teikinui.game.model.traps.FallingBlock;
 import com.teikinui.game.model.traps.GrowingSpike;
+import com.teikinui.game.model.traps.GoalSpike;
 import com.teikinui.game.model.traps.HiddenSlab;
+import com.teikinui.game.model.traps.Icicle;
 import com.teikinui.game.model.traps.InvisibleBlock;
 import com.teikinui.game.model.traps.Loukoum;
 import com.teikinui.game.model.traps.Monkey;
 import com.teikinui.game.model.traps.PopSpike;
 import com.teikinui.game.model.traps.SimitVendor;
 import com.teikinui.game.model.traps.SkyFall;
+import com.teikinui.game.model.traps.Snowball;
 import com.teikinui.game.model.traps.SpikeFloor;
 import com.teikinui.game.model.traps.TiltSlab;
 import com.teikinui.game.model.traps.Trap;
-import com.teikinui.game.model.traps.TrapType;
 
 /**
  * La partie : relie le niveau, le chrono, les collisions et l'affichage.
@@ -55,6 +60,7 @@ public final class PlayScreen extends BaseScreen implements GameListener {
     private final EventBus bus = new EventBus();
     private final InputHandler keyboard = new InputHandler();
     private final CollisionSystem collisionSystem = new CollisionSystem();
+    private final Random random = new Random();
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();
     private final Hud hud;
 
@@ -93,8 +99,12 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         level.setAttempt(attempt);
         player = new Player(level.getStartX(), level.getStartY(),
                 GameConfig.PLAYER_SIZE, GameConfig.PLAYER_SIZE, GameConfig.RUN_SPEED);
+        player.setIcy(theme.isIcy());
         traps = level.createTraps(player);
         goal = level.createGoal();
+        if (theme == LevelTheme.TAHITI) {
+            traps = TahitiTrapPlacement.addThree(level, player, traps, random);
+        }
         session.setCurrentLevel(theme.ordinal());
         setBackground(theme.getBackgroundColor());
         // Vietnam : on enveloppe le clavier pour échanger gauche et droite (Décorateur).
@@ -118,6 +128,11 @@ public final class PlayScreen extends BaseScreen implements GameListener {
 
     @Override
     public void update(float dt) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            // Échap : on quitte le niveau et on revient au menu.
+            game.showMenu();
+            return;
+        }
         float step = Math.min(dt, MAX_STEP);
         timer.update(step);
         if (timer.isTimeUp()) {
@@ -128,6 +143,7 @@ public final class PlayScreen extends BaseScreen implements GameListener {
 
         player.update(step, input);
         collisionSystem.move(player, level, step);
+        moveTahitiGoalNearPlayer(theme, player, goal, level.getStartX(), level.getStartY(), level, traps);
         for (Trap trap : traps) {
             trap.update(step);
         }
@@ -147,6 +163,40 @@ public final class PlayScreen extends BaseScreen implements GameListener {
             died = false;
             loadLevel();
         }
+    }
+
+    /** À une case (écart entre rectangles) de G, l'objectif de Tahiti rejoint P une fois. */
+    static boolean moveTahitiGoalNearPlayer(LevelTheme theme, Player player, Goal goal,
+                                            float startX, float startY) {
+        if (theme != LevelTheme.TAHITI || goal.isReached()) return false;
+        float gapX = Math.max(0f, Math.max(goal.getX() - (player.getX() + player.getWidth()),
+                player.getX() - (goal.getX() + goal.getWidth())));
+        float gapY = Math.max(0f, Math.max(goal.getY() - (player.getY() + player.getHeight()),
+                player.getY() - (goal.getY() + goal.getHeight())));
+        return gapX <= GameConfig.TILE && gapY <= GameConfig.TILE
+                && goal.moveToStart(startX, startY);
+    }
+
+    /** Embuscade créée seulement après que G a quitté sa position initiale. */
+    static boolean moveTahitiGoalNearPlayer(LevelTheme theme, Player player, Goal goal,
+                                            float startX, float startY, Level level, List<Trap> traps) {
+        float oldX = goal.getX();
+        float oldY = goal.getY();
+        if (!moveTahitiGoalNearPlayer(theme, player, goal, startX, startY)) return false;
+        int row = (int)(oldY / Level.TILE);
+        int goalCol = (int)(oldX / Level.TILE);
+        int launchCol = -1;
+        for (int col = 0; col < goalCol; col++) {
+            if (level.getTrapLetter(col, row) == 's') launchCol = col;
+        }
+        if (launchCol >= 0) {
+            for (int col = launchCol + 1; col < goalCol; col++) {
+                GoalSpike spike = new GoalSpike(col * Level.TILE, row * Level.TILE, player);
+                spike.setLevel(level);
+                traps.add(spike);
+            }
+        }
+        return true;
     }
 
     @Override
@@ -182,19 +232,9 @@ public final class PlayScreen extends BaseScreen implements GameListener {
                 if (level.isWall(col, row)) {
                     setColor(theme.getWallColor());
                     shapeRenderer.rect(col * Level.TILE, row * Level.TILE, Level.TILE, Level.TILE);
-                } else if (isLaunchPoint(level.getTrapLetter(col, row))) {
-                    shapeRenderer.setColor(0.3f, 0.5f, 0.65f, 1f);
-                    shapeRenderer.rect(col * Level.TILE + 12f, row * Level.TILE + 12f, 8f, 8f);
                 }
             }
         }
-    }
-
-    /** Petit repère sous les pièges qui tombent ou qui sont lancés (sans image pour l'instant). */
-    private boolean isLaunchPoint(char letter) {
-        return letter == TrapType.COCONUT.getLetter()
-                || letter == TrapType.CLOUD_SHARK.getLetter()
-                || letter == TrapType.STARFISH.getLetter();
     }
 
 
@@ -206,7 +246,7 @@ public final class PlayScreen extends BaseScreen implements GameListener {
          if (trap instanceof FallingBlock || trap instanceof InvisibleBlock) {
                 setColor(theme.getWallColor());
                 shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
-        } else if (trap instanceof Cactus || trap instanceof PopSpike || trap instanceof SpikeFloor) {
+        } else if (trap instanceof Cactus || trap instanceof PopSpike || trap instanceof SpikeFloor || trap instanceof GoalSpike) {
              drawSpikes(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
         } else if (trap instanceof GrowingSpike) {
              drawPillar(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
@@ -248,6 +288,16 @@ public final class PlayScreen extends BaseScreen implements GameListener {
                  float drop = tiltSlab.getIndex() * 14f * tiltSlab.getTilt();
                  shapeRenderer.rect(trap.getX(), trap.getY() - drop, trap.getWidth(), trap.getHeight());
              }
+        } else if (trap instanceof Icicle) {
+             // Stalactite de glace : un triangle bleu clair pointé vers le bas.
+             shapeRenderer.setColor(0.75f, 0.92f, 1f, 1f);
+             shapeRenderer.triangle(trap.getX(), trap.getY() + trap.getHeight(),
+                     trap.getX() + trap.getWidth(), trap.getY() + trap.getHeight(),
+                     trap.getX() + trap.getWidth() / 2f, trap.getY());
+        } else if (trap instanceof Snowball) {
+             shapeRenderer.setColor(0.97f, 0.98f, 1f, 1f);
+             float r = trap.getWidth() / 2f;
+             shapeRenderer.circle(trap.getX() + r, trap.getY() + r, r);
         } else if (trap instanceof Loukoum) {
              shapeRenderer.setColor(0.95f, 0.55f, 0.70f, 1f);
              shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
