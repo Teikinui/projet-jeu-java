@@ -18,7 +18,8 @@ public enum TrapType {
     FAKE_CHILI('v', TrapFamily.GROUND, "fake_chili"),
     INVISIBLE_BLOCK('u', TrapFamily.GROUND, "invisible_block"),
     DUNE('w', TrapFamily.FALLING, "dune"),
-    MONKEY('z', TrapFamily.PROJECTILE, "monkey");
+    MONKEY('z', TrapFamily.PROJECTILE, "monkey"),
+    CROISSANT('g', TrapFamily.BONUS, "croissant");
 
     private final char letter;
     private final TrapFamily family;

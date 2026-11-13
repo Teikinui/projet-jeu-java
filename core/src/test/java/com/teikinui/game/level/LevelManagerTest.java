@@ -9,7 +9,7 @@ import com.teikinui.game.model.GameEvent;
 
 class LevelManagerTest {
     @Test
-    void theTripGoesFromTahitiToSriLanka() {
+    void theTripGoesFromTahitiToFrance() {
         LevelManager levels = new LevelManager();
         assertEquals(LevelTheme.TAHITI, levels.getCurrent());
         levels.onEvent(GameEvent.GOAL_REACHED);
@@ -20,10 +20,12 @@ class LevelManagerTest {
         assertEquals(LevelTheme.VIETNAM, levels.getCurrent());
         levels.onEvent(GameEvent.GOAL_REACHED);
         assertEquals(LevelTheme.SRI_LANKA, levels.getCurrent());
+        levels.onEvent(GameEvent.GOAL_REACHED);
+        assertEquals(LevelTheme.FRANCE, levels.getCurrent());
         assertFalse(levels.isFinished());
         levels.onEvent(GameEvent.GOAL_REACHED);
         assertTrue(levels.isFinished());
-        assertEquals(LevelTheme.SRI_LANKA, levels.getCurrent());
+        assertEquals(LevelTheme.FRANCE, levels.getCurrent());
     }
 
     @Test

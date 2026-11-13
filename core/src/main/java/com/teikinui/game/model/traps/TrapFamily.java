@@ -38,6 +38,11 @@ public enum TrapFamily implements TrapCreator {
     TELEPORT((type, x, y, target) -> {
         if (type != TrapType.RETURN_DOOR) throw new IllegalArgumentException("Piège incompatible : " + type);
         return new ReturnDoor(x, y, target);
+    }),
+    /** Objets qui aident le joueur au lieu de le piéger (France). */
+    BONUS((type, x, y, target) -> {
+        if (type != TrapType.CROISSANT) throw new IllegalArgumentException("Piège incompatible : " + type);
+        return new Croissant(x, y, target);
     });
 
     private final TrapCreator creator;
