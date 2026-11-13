@@ -6,7 +6,8 @@ public final class GameConfig {
     public static final float GRAVITY = -980f;
     public static final float JUMP_SPEED = 540f;
     public static final float RUN_SPEED = 150f;
-    public static final float GAME_DURATION = 480f;
+    /** 3 minutes par pays : le chrono repart à 3:00 à chaque nouveau pays. */
+    public static final float GAME_DURATION = 180f;
     public static final int LEVEL_COLS = 30;
     public static final int LEVEL_ROWS = 17;
     public static final int VIEW_WIDTH = LEVEL_COLS * TILE;

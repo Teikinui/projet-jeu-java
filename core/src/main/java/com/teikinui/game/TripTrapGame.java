@@ -36,7 +36,7 @@ public class TripTrapGame extends Game {
         setScreen(new MenuScreen(this));
     }
 
-    /** Une nouvelle partie : chrono à 8 minutes, 0 mort, premier pays. */
+    /** Une nouvelle partie : chrono à 3 minutes, 0 mort, premier pays. */
     public void startGame() {
         startGame(LevelTheme.values()[0]);
     }
@@ -52,7 +52,7 @@ public class TripTrapGame extends Game {
 
     /** Le chrono est à zéro : écran de fin avec le nombre de morts. */
     public void showTimeUp() {
-        String details = "Tu es mort " + session.getDeathCount() + " fois en 8 minutes.\n"
+        String details = "Les 3 minutes sont écoulées. Tu es mort " + session.getDeathCount() + " fois.\n"
                 + "Le voyage, ce n'est clairement pas pour toi.";
         setScreen(new MessageScreen(this, "TEMPS ÉCOULÉ", details, 0f, this::showMenu));
     }

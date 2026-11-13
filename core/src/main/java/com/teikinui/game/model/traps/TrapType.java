@@ -22,7 +22,14 @@ public enum TrapType {
     CROISSANT('g', TrapFamily.BONUS, "croissant"),
     DERVISH('D', TrapFamily.GROUND, "dervish"),
     LOUKOUM('L', TrapFamily.GROUND, "loukoum"),
-    SIMIT_VENDOR('S', TrapFamily.PROJECTILE, "simit_vendor");
+    SIMIT_VENDOR('S', TrapFamily.PROJECTILE, "simit_vendor"),
+    SKY_FALL('a', TrapFamily.GROUND, "sky_fall"),
+    CHARGING_WALL('m', TrapFamily.GROUND, "charging_wall"),
+    HIDDEN_SLAB('n', TrapFamily.GROUND, "hidden_slab"),
+    FAKE_SLAB('x', TrapFamily.GROUND, "fake_slab"),
+    TILT_SLAB('b', TrapFamily.GROUND, "tilt_slab"),
+    ICICLE('I', TrapFamily.FALLING, "icicle"),
+    SNOWBALL('B', TrapFamily.GROUND, "snowball");
 
     private final char letter;
     private final TrapFamily family;
