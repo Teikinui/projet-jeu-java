@@ -10,7 +10,7 @@ public enum LevelTheme {
             new float[] {0.10f, 0.12f, 0.16f},
             new float[] {0.55f, 0.40f, 0.25f},
             new float[] {0.20f, 0.70f, 0.30f}),
-    CHINE("chine.txt", "Chine", "le bol de ramen",
+    CHINE("chine.txt", "Chine", "la porte du temple",
             new float[] {0.12f, 0.08f, 0.08f},
             new float[] {0.62f, 0.16f, 0.12f},
             new float[] {0.95f, 0.90f, 0.80f}),

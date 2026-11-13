@@ -23,17 +23,22 @@ import com.teikinui.game.model.Player;
 import com.teikinui.game.model.PlayerInput;
 import com.teikinui.game.model.ReversedInput;
 import com.teikinui.game.model.traps.Cactus;
+import com.teikinui.game.model.traps.ChargingWall;
 import com.teikinui.game.model.traps.Croissant;
 import com.teikinui.game.model.traps.Dervish;
 import com.teikinui.game.model.traps.FakeChili;
+import com.teikinui.game.model.traps.FakeSlab;
 import com.teikinui.game.model.traps.FallingBlock;
 import com.teikinui.game.model.traps.GrowingSpike;
+import com.teikinui.game.model.traps.HiddenSlab;
 import com.teikinui.game.model.traps.InvisibleBlock;
 import com.teikinui.game.model.traps.Loukoum;
 import com.teikinui.game.model.traps.Monkey;
 import com.teikinui.game.model.traps.PopSpike;
 import com.teikinui.game.model.traps.SimitVendor;
+import com.teikinui.game.model.traps.SkyFall;
 import com.teikinui.game.model.traps.SpikeFloor;
+import com.teikinui.game.model.traps.TiltSlab;
 import com.teikinui.game.model.traps.Trap;
 import com.teikinui.game.model.traps.TrapType;
 
@@ -80,6 +85,9 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         LevelTheme previous = theme;
         theme = levels.getCurrent();
         attempt = theme == previous ? attempt + 1 : 0;
+        if (theme != previous) {
+            timer.reset();
+        }
         String text = Gdx.files.internal("assets/" + theme.getFileName()).readString();
         level = LevelLoader.fromString(text);
         level.setAttempt(attempt);
@@ -209,6 +217,32 @@ public final class PlayScreen extends BaseScreen implements GameListener {
              drawDervish(dervish);
         } else if (trap instanceof SimitVendor vendor) {
              drawSimitVendor(vendor);
+        } else if (trap instanceof SkyFall sky) {
+             // Le ciel : une bande sombre qui descend depuis le haut de l'écran.
+             shapeRenderer.setColor(0.30f, 0.05f, 0.08f, 1f);
+             float top = Level.TILE * level.getRows();
+             shapeRenderer.rect(0f, sky.getSkyBottom(), Level.TILE * level.getCols(), top - sky.getSkyBottom());
+        } else if (trap instanceof ChargingWall) {
+             shapeRenderer.setColor(0.35f, 0.08f, 0.06f, 1f);
+             shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
+             shapeRenderer.setColor(0.95f, 0.80f, 0.25f, 1f);
+             shapeRenderer.rect(trap.getX(), trap.getY(), 4f, trap.getHeight());
+        } else if (trap instanceof HiddenSlab slab) {
+             if (!slab.isRevealed()) {
+                 // Tant qu'elle n'est pas trouvée, on la recouvre avec la couleur du fond.
+                 setColor(theme.getBackgroundColor());
+                 shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
+             }
+        } else if (trap instanceof FakeSlab) {
+             setColor(theme.getWallColor());
+             shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
+        } else if (trap instanceof TiltSlab tiltSlab) {
+             if (tiltSlab.getTilt() > 0f) {
+                 // Penchée : chaque case est dessinée un peu plus bas que sa voisine de gauche.
+                 setColor(theme.getWallColor());
+                 float drop = tiltSlab.getIndex() * 14f * tiltSlab.getTilt();
+                 shapeRenderer.rect(trap.getX(), trap.getY() - drop, trap.getWidth(), trap.getHeight());
+             }
         } else if (trap instanceof Loukoum) {
              shapeRenderer.setColor(0.95f, 0.55f, 0.70f, 1f);
              shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());

@@ -36,6 +36,11 @@ public enum TrapFamily implements TrapCreator {
         case INVISIBLE_BLOCK -> new InvisibleBlock(x, y, target);
         case DERVISH -> new Dervish(x, y, target);
         case LOUKOUM -> new Loukoum(x, y, target);
+        case SKY_FALL -> new SkyFall(x, y, target);
+        case CHARGING_WALL -> new ChargingWall(x, y, target);
+        case HIDDEN_SLAB -> new HiddenSlab(x, y, target);
+        case FAKE_SLAB -> new FakeSlab(x, y, target);
+        case TILT_SLAB -> new TiltSlab(x, y, target);
         default -> throw new IllegalArgumentException("Piège incompatible : " + type);
     }),
     TELEPORT((type, x, y, target) -> {

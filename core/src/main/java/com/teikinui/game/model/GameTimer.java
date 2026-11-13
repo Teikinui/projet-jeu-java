@@ -16,6 +16,11 @@ public final class GameTimer implements Updatable {
         return remaining;
     }
 
+    /** Remet le chrono à 3 minutes (nouveau pays). */
+    public void reset() {
+        remaining = GameConfig.GAME_DURATION;
+    }
+
     public boolean isTimeUp() {
         return remaining <= 0f;
     }
