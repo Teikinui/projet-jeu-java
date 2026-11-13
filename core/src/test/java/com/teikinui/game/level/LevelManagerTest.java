@@ -21,6 +21,8 @@ class LevelManagerTest {
         levels.onEvent(GameEvent.GOAL_REACHED);
         assertEquals(LevelTheme.SRI_LANKA, levels.getCurrent());
         levels.onEvent(GameEvent.GOAL_REACHED);
+        assertEquals(LevelTheme.TURQUIE, levels.getCurrent());
+        levels.onEvent(GameEvent.GOAL_REACHED);
         assertEquals(LevelTheme.FRANCE, levels.getCurrent());
         assertFalse(levels.isFinished());
         levels.onEvent(GameEvent.GOAL_REACHED);

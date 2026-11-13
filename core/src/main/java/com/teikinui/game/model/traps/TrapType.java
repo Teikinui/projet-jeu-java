@@ -19,7 +19,10 @@ public enum TrapType {
     INVISIBLE_BLOCK('u', TrapFamily.GROUND, "invisible_block"),
     DUNE('w', TrapFamily.FALLING, "dune"),
     MONKEY('z', TrapFamily.PROJECTILE, "monkey"),
-    CROISSANT('g', TrapFamily.BONUS, "croissant");
+    CROISSANT('g', TrapFamily.BONUS, "croissant"),
+    DERVISH('D', TrapFamily.GROUND, "dervish"),
+    LOUKOUM('L', TrapFamily.GROUND, "loukoum"),
+    SIMIT_VENDOR('S', TrapFamily.PROJECTILE, "simit_vendor");
 
     private final char letter;
     private final TrapFamily family;
