@@ -155,8 +155,13 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         drawLevel();
         drawTraps();
-        setColor(theme.getGoalColor());
-        shapeRenderer.rect(goal.getX(), goal.getY(), goal.getWidth(), goal.getHeight());
+        if (theme.hidesGoal()) {
+            // Chine : la vraie sortie ressemble à un trou à pics comme les autres.
+            drawSpikes(goal.getX(), goal.getY(), goal.getWidth(), 20f);
+        } else {
+            setColor(theme.getGoalColor());
+            shapeRenderer.rect(goal.getX(), goal.getY(), goal.getWidth(), goal.getHeight());
+        }
         if (player.isBoosted()) {
             // Boosté par le croissant : le joueur devient doré.
             shapeRenderer.setColor(1f, 0.80f, 0.25f, 1f);

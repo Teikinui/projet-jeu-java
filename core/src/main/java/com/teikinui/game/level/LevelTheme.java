@@ -96,4 +96,9 @@ public enum LevelTheme {
     public boolean hasInvertedControls() {
         return invertedControls;
     }
+
+    /** En Chine, la vraie sortie est cachée : elle est dessinée comme un trou à pics. */
+    public boolean hidesGoal() {
+        return this == CHINE;
+    }
 }

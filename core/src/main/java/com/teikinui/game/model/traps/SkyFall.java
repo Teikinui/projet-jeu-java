@@ -7,7 +7,7 @@ import com.teikinui.game.model.Player;
 
 /**
  * Ciel qui tombe (Chine) : 1 seconde après le départ, le ciel descend sur toute
- * la largeur de l'écran. Tant qu'il est en bas, c'est « 1, 2, 3, soleil » :
+ * la largeur de l'écran, jusqu'à toucher la tête du joueur. Tant qu'il est en bas, c'est « 1, 2, 3, soleil » :
  * si le joueur bouge (court, saute ou tombe), il meurt. Ensuite le ciel remonte.
  */
 public final class SkyFall extends Trap {
@@ -16,9 +16,12 @@ public final class SkyFall extends Trap {
     private static final float HOLD = 1.5f;
     private static final float UP = 0.8f;
     private static final float TOP = GameConfig.LEVEL_ROWS * GameConfig.TILE;
-    private static final float LOWEST = 9f * GameConfig.TILE;
+    /** Petit espace entre le ciel et la tête du joueur. */
+    private static final float GAP = 2f;
 
     private float time;
+    private float lowest = TOP;
+    private boolean aimed;
 
     public SkyFall(float x, float y, Player target) {
         super(0f, 0f, 0f, 0f, target);
@@ -32,6 +35,11 @@ public final class SkyFall extends Trap {
 
     @Override
     protected void activate(float dt) {
+        if (!aimed && time >= WAIT) {
+            // Au moment où il commence à tomber, le ciel vise la tête du joueur.
+            lowest = Math.min(TOP, target.getY() + target.getHeight() + GAP);
+            aimed = true;
+        }
         time += dt;
         if (time > WAIT + DOWN + HOLD + UP) {
             state = State.DONE;
@@ -49,13 +57,13 @@ public final class SkyFall extends Trap {
             return TOP;
         }
         if (time < WAIT + DOWN) {
-            return TOP - (TOP - LOWEST) * (time - WAIT) / DOWN;
+            return TOP - (TOP - lowest) * (time - WAIT) / DOWN;
         }
         if (time < WAIT + DOWN + HOLD) {
-            return LOWEST;
+            return lowest;
         }
         float up = Math.min(1f, (time - WAIT - DOWN - HOLD) / UP);
-        return LOWEST + (TOP - LOWEST) * up;
+        return lowest + (TOP - lowest) * up;
     }
 
     private boolean playerMoves() {

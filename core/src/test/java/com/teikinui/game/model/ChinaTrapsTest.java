@@ -57,8 +57,12 @@ class ChinaTrapsTest {
         Player player = new Player(32f, 32f, 32f, 32f, GameConfig.RUN_SPEED);
         List<Trap> traps = level.createTraps(player);
         SkyFall sky = (SkyFall) first(traps, SkyFall.class);
-        play(level, traps, player, false, false, 1.5f);
+        play(level, traps, player, false, false, 2.2f);
         assertTrue(sky.isDangerous());
+        // Le ciel est descendu jusqu'à la tête du joueur.
+        float head = player.getY() + player.getHeight();
+        assertTrue(sky.getSkyBottom() >= head);
+        assertTrue(sky.getSkyBottom() <= head + 3f);
         play(level, traps, player, false, false, 3f);
         assertFalse(sky.isDangerous());
         assertTrue(received.isEmpty());
