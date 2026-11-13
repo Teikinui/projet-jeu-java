@@ -36,15 +36,17 @@ class TahitiTrapPlacementTest {
             assertEquals(Tile.EMPTY, level.getTile(col, row));
             assertEquals(0, level.getTrapLetter(col, row));
             assertFalse(col >= 25 && col <= 27 && row == 12);
-            assertNotEquals(level.getStartX(), trap.getX());
-            assertNotEquals(level.createGoal().getX(), trap.getX());
+            assertFalse(trap.getX() == level.getStartX() && trap.getY() == level.getStartY());
+            assertFalse(trap.getX() == level.createGoal().getX()
+                    && trap.getY() == level.createGoal().getY());
+            assertFalse(col == 7 && row == 1 || col == 12 && row == 4 || col == 23 && row == 4);
             assertTrue(level.isWall(col, row - 1), "Piège sur case accessible au-dessus du sol");
         }
         assertEquals(3, traps.subList(traps.size() - 3, traps.size()).stream()
                 .map(t -> (int)t.getX() + ":" + (int)t.getY()).distinct().count());
     }
 
-    @Test void seedReproducesPlacementAndNewSeedRerolls() throws Exception {
+    @Test void seedReproducesPlanAndDifferentNewGamesCanReroll() throws Exception {
         Level level = tahiti();
         Player player = new Player(level.getStartX(), level.getStartY(), 32, 32, GameConfig.RUN_SPEED);
         String first = signature(TahitiTrapPlacement.addThree(level, player, level.createTraps(player), new Random(1)));

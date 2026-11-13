@@ -30,7 +30,6 @@ import com.teikinui.game.model.traps.Dervish;
 import com.teikinui.game.model.traps.FakeChili;
 import com.teikinui.game.model.traps.FallingBlock;
 import com.teikinui.game.model.traps.GrowingSpike;
-import com.teikinui.game.model.traps.GoalSpike;
 import com.teikinui.game.model.traps.InvisibleBlock;
 import com.teikinui.game.model.traps.Loukoum;
 import com.teikinui.game.model.traps.Monkey;
@@ -38,6 +37,7 @@ import com.teikinui.game.model.traps.PopSpike;
 import com.teikinui.game.model.traps.SimitVendor;
 import com.teikinui.game.model.traps.SpikeFloor;
 import com.teikinui.game.model.traps.Trap;
+import com.teikinui.game.model.traps.projectile.Starfish;
 
 /**
  * La partie : relie le niveau, le chrono, les collisions et l'affichage.
@@ -53,6 +53,7 @@ public final class PlayScreen extends BaseScreen implements GameListener {
     private final InputHandler keyboard = new InputHandler();
     private final CollisionSystem collisionSystem = new CollisionSystem();
     private final Random random = new Random();
+    private List<TahitiTrapPlacement.Placement> tahitiPlan;
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();
     private final Hud hud;
 
@@ -91,7 +92,8 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         traps = level.createTraps(player);
         goal = level.createGoal();
         if (theme == LevelTheme.TAHITI) {
-            traps = TahitiTrapPlacement.addThree(level, player, traps, random);
+            if (tahitiPlan == null) tahitiPlan = TahitiTrapPlacement.plan(level, traps, random);
+            traps = TahitiTrapPlacement.instantiate(level, player, traps, tahitiPlan);
         }
         session.setCurrentLevel(theme.ordinal());
         setBackground(theme.getBackgroundColor());
@@ -126,10 +128,8 @@ public final class PlayScreen extends BaseScreen implements GameListener {
 
         player.update(step, input);
         collisionSystem.move(player, level, step);
-        moveTahitiGoalNearPlayer(theme, player, goal, level.getStartX(), level.getStartY(), level, traps);
-        for (Trap trap : traps) {
-            trap.update(step);
-        }
+        activateTahitiReturnWave(theme, player, goal, level, traps);
+        updateTraps(theme, level, goal, traps, step);
         collisionSystem.checkContacts(player, traps, bus);
         collisionSystem.checkFall(player, bus);
         collisionSystem.checkContacts(player, List.of(goal), bus);
@@ -148,6 +148,27 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         }
     }
 
+    /** La vague n'existe qu'après la première téléportation de G, une fois par tentative. */
+    static boolean activateTahitiReturnWave(LevelTheme theme, Player player, Goal goal,
+                                            Level level, List<Trap> traps) {
+        if (!moveTahitiGoalNearPlayer(theme, player, goal, level.getStartX(), level.getStartY())) return false;
+        traps.addAll(TahitiTrapPlacement.returnWave(level, player));
+        return true;
+    }
+
+    /** L'étoile qui garde G à Tahiti se déclenche après le départ de G, pas avant. */
+    static void updateTraps(LevelTheme theme, Level level, Goal goal, List<Trap> traps, float step) {
+        for (Trap trap : traps) {
+            if (theme == LevelTheme.TAHITI && trap instanceof Starfish
+                    && !goal.hasMovedToStart()
+                    && trap.getX() == goal.getX() - 4f * Level.TILE
+                    && trap.getY() == goal.getY()
+                    && level.getTrapLetter((int)(trap.getX() / Level.TILE),
+                            (int)(trap.getY() / Level.TILE)) == 's') continue;
+            trap.update(step);
+        }
+    }
+
     /** À une case (écart entre rectangles) de G, l'objectif de Tahiti rejoint P une fois. */
     static boolean moveTahitiGoalNearPlayer(LevelTheme theme, Player player, Goal goal,
                                             float startX, float startY) {
@@ -158,28 +179,6 @@ public final class PlayScreen extends BaseScreen implements GameListener {
                 player.getY() - (goal.getY() + goal.getHeight())));
         return gapX <= GameConfig.TILE && gapY <= GameConfig.TILE
                 && goal.moveToStart(startX, startY);
-    }
-
-    /** Embuscade créée seulement après que G a quitté sa position initiale. */
-    static boolean moveTahitiGoalNearPlayer(LevelTheme theme, Player player, Goal goal,
-                                            float startX, float startY, Level level, List<Trap> traps) {
-        float oldX = goal.getX();
-        float oldY = goal.getY();
-        if (!moveTahitiGoalNearPlayer(theme, player, goal, startX, startY)) return false;
-        int row = (int)(oldY / Level.TILE);
-        int goalCol = (int)(oldX / Level.TILE);
-        int launchCol = -1;
-        for (int col = 0; col < goalCol; col++) {
-            if (level.getTrapLetter(col, row) == 's') launchCol = col;
-        }
-        if (launchCol >= 0) {
-            for (int col = launchCol + 1; col < goalCol; col++) {
-                GoalSpike spike = new GoalSpike(col * Level.TILE, row * Level.TILE, player);
-                spike.setLevel(level);
-                traps.add(spike);
-            }
-        }
-        return true;
     }
 
     @Override
@@ -224,7 +223,7 @@ public final class PlayScreen extends BaseScreen implements GameListener {
          if (trap instanceof FallingBlock || trap instanceof InvisibleBlock) {
                 setColor(theme.getWallColor());
                 shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
-        } else if (trap instanceof Cactus || trap instanceof PopSpike || trap instanceof SpikeFloor || trap instanceof GoalSpike) {
+        } else if (trap instanceof Cactus || trap instanceof PopSpike || trap instanceof SpikeFloor) {
              drawSpikes(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
         } else if (trap instanceof GrowingSpike) {
              drawPillar(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());

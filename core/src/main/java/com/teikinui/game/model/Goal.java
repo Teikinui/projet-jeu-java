@@ -18,6 +18,10 @@ public final class Goal extends Entity implements Interactable {
         return true;
     }
 
+    public boolean hasMovedToStart() {
+        return movedToStart;
+    }
+
     /** L'objectif ne bouge pas lors de la mise à jour par frame. */
     @Override
     public void update(float deltaTime) {

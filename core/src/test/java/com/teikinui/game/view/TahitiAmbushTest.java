@@ -6,8 +6,8 @@ import com.teikinui.game.model.GameConfig;
 import com.teikinui.game.model.Goal;
 import com.teikinui.game.model.Level;
 import com.teikinui.game.model.Player;
-import com.teikinui.game.model.traps.GoalSpike;
 import com.teikinui.game.model.traps.Trap;
+import com.teikinui.game.model.traps.projectile.Starfish;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
@@ -18,27 +18,24 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TahitiAmbushTest {
-    @Test void spikesBetweenUpperStarfishAndOriginalGoalOnlyAfterGoalMoves() throws Exception {
+    @Test void goalMovesWithoutAddingSpikesAndFixedStarfishRemains() throws Exception {
         Path path = Path.of("assets/tahiti.txt");
         if (!Files.exists(path)) path = Path.of("..", "assets", "tahiti.txt");
         Level level = LevelLoader.fromString(Files.readString(path));
         Player player = new Player(level.getStartX(), level.getStartY(), 32, 32, GameConfig.RUN_SPEED);
         Goal goal = level.createGoal();
         List<Trap> traps = new ArrayList<>(level.createTraps(player));
-        assertEquals(0, traps.stream().filter(GoalSpike.class::isInstance).count());
+        int fixedCount = traps.size();
+        long starfishCount = traps.stream().filter(Starfish.class::isInstance).count();
         float originalGoalX = goal.getX();
         player.teleport(originalGoalX - 2 * GameConfig.TILE, goal.getY());
         assertTrue(PlayScreen.moveTahitiGoalNearPlayer(LevelTheme.TAHITI, player, goal,
-                level.getStartX(), level.getStartY(), level, traps));
-        List<GoalSpike> spikes = traps.stream().filter(GoalSpike.class::isInstance).map(GoalSpike.class::cast).toList();
-        assertEquals(3, spikes.size());
-        for (int col = 25; col <= 27; col++) {
-            int cell = col;
-            assertTrue(spikes.stream().anyMatch(spike -> spike.getX() == cell * GameConfig.TILE));
-        }
-        spikes.forEach(spike -> { assertTrue(spike.isVisible()); assertTrue(spike.isActive()); });
+                level.getStartX(), level.getStartY()));
+        assertEquals(level.getStartX(), goal.getX());
+        assertEquals(fixedCount, traps.size(), "La transition ne crée aucun nouveau piège");
+        assertEquals(starfishCount, traps.stream().filter(Starfish.class::isInstance).count());
         assertFalse(PlayScreen.moveTahitiGoalNearPlayer(LevelTheme.TAHITI, player, goal,
-                level.getStartX(), level.getStartY(), level, traps));
-        assertEquals(3, traps.stream().filter(GoalSpike.class::isInstance).count());
+                level.getStartX(), level.getStartY()));
+        assertEquals(fixedCount, traps.size());
     }
 }
