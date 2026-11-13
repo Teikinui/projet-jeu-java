@@ -20,6 +20,9 @@ public class Player extends Entity {
     @Override
     public void update(float deltaTime) {
         update(deltaTime, false, false, false);
+        if (getY() < 0) {
+            EventBus.publish(GameEvent.PLAYER_DIED);
+        }
     }
 
     /** Commandes injectables, sans dépendance au clavier libGDX. */
