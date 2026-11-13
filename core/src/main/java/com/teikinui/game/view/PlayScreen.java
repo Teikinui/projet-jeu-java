@@ -133,6 +133,7 @@ public final class PlayScreen extends BaseScreen implements GameListener {
             // Échap : on quitte le niveau et on revient au menu.
             leaving = true;
             game.showMenu();
+            return;
         }
         float step = Math.min(dt, MAX_STEP);
         timer.update(step);
