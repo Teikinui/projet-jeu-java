@@ -3,6 +3,7 @@ package com.teikinui.game;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.teikinui.game.level.LevelManager;
+import com.teikinui.game.level.LevelTheme;
 import com.teikinui.game.model.GameSession;
 import com.teikinui.game.model.GameTimer;
 import com.teikinui.game.view.Assets;
@@ -37,10 +38,15 @@ public class TripTrapGame extends Game {
 
     /** Une nouvelle partie : chrono à 8 minutes, 0 mort, premier pays. */
     public void startGame() {
+        startGame(LevelTheme.values()[0]);
+    }
+
+    /** Une nouvelle partie qui commence dans le pays choisi au menu. */
+    public void startGame(LevelTheme start) {
         disposePlayScreen();
         session = new GameSession();
         timer = new GameTimer();
-        playScreen = new PlayScreen(this, session, timer, new LevelManager());
+        playScreen = new PlayScreen(this, session, timer, new LevelManager(start));
         setScreen(playScreen);
     }
 
@@ -53,7 +59,7 @@ public class TripTrapGame extends Game {
 
     /** Le dernier objectif est attrapé : écran de victoire. */
     public void showVictory() {
-        String details = "Tu as traversé Tahiti, la Chine et la Tunisie.\n"
+        String details = "Tu as fini ton tour du monde !\n"
                 + "Morts : " + session.getDeathCount()
                 + "     Temps restant : " + Hud.formatTime(timer.getRemaining());
         setScreen(new MessageScreen(this, "BON VOYAGE !", details, 0f, this::showMenu));

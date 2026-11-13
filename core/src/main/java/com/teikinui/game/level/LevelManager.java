@@ -8,8 +8,18 @@ import com.teikinui.game.model.GameListener;
  * il passe au pays suivant ; après le dernier, le voyage est terminé.
  */
 public final class LevelManager implements GameListener {
-    private LevelTheme current = LevelTheme.values()[0];
+    private LevelTheme current;
     private boolean finished;
+
+    /** Le voyage complet, à partir du premier pays (Tahiti). */
+    public LevelManager() {
+        this(LevelTheme.values()[0]);
+    }
+
+    /** Le voyage à partir du pays choisi dans le menu. */
+    public LevelManager(LevelTheme start) {
+        current = start;
+    }
 
     @Override
     public void onEvent(GameEvent event) {

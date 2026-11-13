@@ -38,4 +38,13 @@ class LevelManagerTest {
         assertEquals(LevelTheme.TAHITI, levels.getCurrent());
         assertFalse(levels.isFinished());
     }
+
+    @Test
+    void theTripCanStartFromTheCountryChosenInTheMenu() {
+        LevelManager levels = new LevelManager(LevelTheme.VIETNAM);
+        assertEquals(LevelTheme.VIETNAM, levels.getCurrent());
+        levels.onEvent(GameEvent.GOAL_REACHED);
+        assertEquals(LevelTheme.SRI_LANKA, levels.getCurrent());
+        assertFalse(levels.isFinished());
+    }
 }
