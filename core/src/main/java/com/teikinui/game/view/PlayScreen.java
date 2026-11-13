@@ -32,8 +32,8 @@ import com.teikinui.game.model.traps.Dervish;
 import com.teikinui.game.model.traps.FakeChili;
 import com.teikinui.game.model.traps.FakeSlab;
 import com.teikinui.game.model.traps.FallingBlock;
-import com.teikinui.game.model.traps.GrowingSpike;
 import com.teikinui.game.model.traps.GoalSpike;
+import com.teikinui.game.model.traps.GrowingSpike;
 import com.teikinui.game.model.traps.HiddenSlab;
 import com.teikinui.game.model.traps.Icicle;
 import com.teikinui.game.model.traps.InvisibleBlock;
@@ -73,7 +73,8 @@ public final class PlayScreen extends BaseScreen implements GameListener {
     private Goal goal;
     private boolean died;
     private boolean goalReached;
-
+    private boolean leaving;
+    
     public PlayScreen(TripTrapGame game, GameSession session, GameTimer timer, LevelManager levels) {
         super(game);
         this.session = session;
@@ -130,8 +131,8 @@ public final class PlayScreen extends BaseScreen implements GameListener {
     public void update(float dt) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             // Échap : on quitte le niveau et on revient au menu.
+            leaving = true;
             game.showMenu();
-            return;
         }
         float step = Math.min(dt, MAX_STEP);
         timer.update(step);
@@ -201,6 +202,10 @@ public final class PlayScreen extends BaseScreen implements GameListener {
 
     @Override
     public void draw(SpriteBatch batch) {
+        if (leaving) {
+            // L'écran vient d'être fermé par Échap : son ShapeRenderer est détruit.
+            return;
+        }
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         drawLevel();

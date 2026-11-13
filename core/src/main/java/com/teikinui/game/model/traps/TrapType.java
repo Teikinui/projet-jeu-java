@@ -27,7 +27,9 @@ public enum TrapType {
     CHARGING_WALL('m', TrapFamily.GROUND, "charging_wall"),
     HIDDEN_SLAB('n', TrapFamily.GROUND, "hidden_slab"),
     FAKE_SLAB('x', TrapFamily.GROUND, "fake_slab"),
-    TILT_SLAB('b', TrapFamily.GROUND, "tilt_slab");
+    TILT_SLAB('b', TrapFamily.GROUND, "tilt_slab"),
+    ICICLE('I', TrapFamily.FALLING, "icicle"),
+    SNOWBALL('B', TrapFamily.GROUND, "snowball");
 
     private final char letter;
     private final TrapFamily family;

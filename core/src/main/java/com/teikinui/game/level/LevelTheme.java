@@ -34,7 +34,11 @@ public enum LevelTheme {
     FRANCE("france.txt", "France", "la tour Eiffel",
             new float[] {0.08f, 0.10f, 0.25f},
             new float[] {0.80f, 0.76f, 0.66f},
-            new float[] {0.80f, 0.62f, 0.30f});
+            new float[] {0.80f, 0.62f, 0.30f}),
+    LAPONIE("laponie.txt", "Laponie", "le traîneau du Père Noël",
+            new float[] {0.04f, 0.07f, 0.16f},
+            new float[] {0.78f, 0.90f, 0.97f},
+            new float[] {0.85f, 0.15f, 0.15f});
 
     private final String fileName;
     private final String displayName;
@@ -95,6 +99,20 @@ public enum LevelTheme {
 
     public boolean hasInvertedControls() {
         return invertedControls;
+    }
+
+    /** Difficulté affichée dans le menu : de 1 à 4 bombes. */
+    public int getDifficulty() {
+        return switch (this) {
+            case SRI_LANKA, TURQUIE, FRANCE -> 1;
+            case TAHITI, VIETNAM, LAPONIE -> 2;
+            case CHINE, TUNISIE -> 3;
+        };
+    }
+
+    /** En Laponie, tout le sol est gelé : le joueur glisse. */
+    public boolean isIcy() {
+        return this == LAPONIE;
     }
 
     /** En Chine, la vraie sortie est cachée : elle est dessinée comme un trou à pics. */
