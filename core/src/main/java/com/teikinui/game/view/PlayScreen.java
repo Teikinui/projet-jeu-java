@@ -6,6 +6,7 @@ import java.util.Random;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -320,6 +321,13 @@ public final class PlayScreen extends BaseScreen implements GameListener {
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         drawTraps();
+        shapeRenderer.end();
+
+        batch.begin();
+        drawCamouflagedTraps(batch, assets);
+        batch.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         if (playerSprites.getAnimation(spriteState == null ? PlayerSprites.State.IDLE : spriteState) == null) {
             if (player.isBoosted()) shapeRenderer.setColor(1f, 0.80f, 0.25f, 1f);
             else shapeRenderer.setColor(1f, 0.44f, 0.38f, 1f);
@@ -339,6 +347,34 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         hud.draw(batch);
         taunt.draw(batch);
         batch.end();
+    }
+
+    static String fakeGoalSprite(LevelTheme theme, boolean goalTexturePresent) {
+        return theme == LevelTheme.SRI_LANKA && goalTexturePresent ? "goal_srilanka" : null;
+    }
+
+    static boolean maskHiddenSlabWithBackground(LevelTheme theme, boolean backgroundPresent) {
+        return theme == LevelTheme.LAPONIE && backgroundPresent;
+    }
+
+    /** Copie le fond derrière la dalle cachée et rend le faux piment identique au vrai. */
+    private void drawCamouflagedTraps(SpriteBatch batch, Assets assets) {
+        String fakeSprite = fakeGoalSprite(theme, assets.hasTexture("goal_" + themeKey));
+        boolean texturedMask = maskHiddenSlabWithBackground(theme, assets.hasTexture("bg_" + themeKey));
+        for (Trap trap : traps) {
+            if (!trap.isVisible()) continue;
+            if (trap instanceof FakeChili && fakeSprite != null) {
+                batch.draw(assets.getTexture(fakeSprite), trap.getX(), trap.getY(),
+                        trap.getWidth(), trap.getHeight());
+            } else if (trap instanceof HiddenSlab slab && !slab.isRevealed() && texturedMask) {
+                Texture bg = assets.getTexture("bg_" + themeKey);
+                float x = trap.getX(), y = trap.getY();
+                batch.draw(bg, x, y, trap.getWidth(), trap.getHeight(),
+                        x / GameConfig.VIEW_WIDTH, 1f - y / GameConfig.VIEW_HEIGHT,
+                        (x + trap.getWidth()) / GameConfig.VIEW_WIDTH,
+                        1f - (y + trap.getHeight()) / GameConfig.VIEW_HEIGHT);
+            }
+        }
     }
 
     static boolean isFloorSurface(Level level, int col, int row) {
@@ -391,9 +427,11 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         } else if (trap instanceof GrowingSpike) {
              drawPillar(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
         } else if (trap instanceof FakeChili) {
-             // Dessiné exactement comme le vrai objectif : c'est tout le piège.
-             setColor(theme.getGoalColor());
-             shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
+             // Même apparence que G, y compris lorsqu'un sprite est disponible.
+             if (fakeGoalSprite(theme, game.getAssets().hasTexture("goal_" + themeKey)) == null) {
+                 setColor(theme.getGoalColor());
+                 shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
+             }
         } else if (trap instanceof Monkey monkey) {
              drawMonkey(monkey);
         } else if (trap instanceof Croissant croissant) {
@@ -413,8 +451,9 @@ public final class PlayScreen extends BaseScreen implements GameListener {
              shapeRenderer.setColor(0.95f, 0.80f, 0.25f, 1f);
              shapeRenderer.rect(trap.getX(), trap.getY(), 4f, trap.getHeight());
         } else if (trap instanceof HiddenSlab slab) {
-             if (!slab.isRevealed()) {
-                 // Tant qu'elle n'est pas trouvée, on la recouvre avec la couleur du fond.
+             if (!slab.isRevealed() && !maskHiddenSlabWithBackground(theme,
+                     game.getAssets().hasTexture("bg_" + themeKey))) {
+                 // Sans PNG, la couleur unie masque la dalle comme auparavant.
                  setColor(theme.getBackgroundColor());
                  shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
              }
