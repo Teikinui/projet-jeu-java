@@ -58,7 +58,7 @@ class TahitiReturnPhaseTest {
         }
     }
 
-    @Test void consumedMiddleCoconutIsRecreatedDormantAtSamePositionOnRespawn() throws Exception {
+    @Test void consumedMiddleCoconutIsRearmedAtSamePositionOnRespawn() throws Exception {
         Path path = Path.of("assets/tahiti.txt");
         if (!Files.exists(path)) path = Path.of("..", "assets", "tahiti.txt");
         String map = Files.readString(path);
@@ -82,6 +82,7 @@ class TahitiReturnPhaseTest {
 
         // Mêmes étapes que loadLevel() après la mort : carte et objets neufs, vague en réserve.
         Level retry = LevelLoader.fromString(map);
+        retry.setAttempt(1);
         Player respawn = new Player(retry.getStartX(), retry.getStartY(), 32, 32, GameConfig.RUN_SPEED);
         List<Trap> fresh = retry.createTraps(respawn);
         List<Trap> freshWave = TahitiTrapPlacement.returnWave(retry, respawn);
@@ -95,8 +96,12 @@ class TahitiReturnPhaseTest {
             assertEquals(Trap.State.WAITING, freshWave.get(i).getState());
         }
         Goal reset = retry.createGoal();
+        assertTrue(PlayScreen.activateTahitiReturnWave(LevelTheme.TAHITI, respawn, reset, retry, fresh, freshWave));
+        assertTrue(fresh.containsAll(freshWave));
+        assertEquals(3, fresh.stream().filter(freshWave::contains).count());
+        assertTrue(freshWave.stream().allMatch(t -> t.getState() == Trap.State.WAITING));
         assertFalse(PlayScreen.activateTahitiReturnWave(LevelTheme.TAHITI, respawn, reset, retry, fresh, freshWave));
-        assertTrue(fresh.stream().noneMatch(freshWave::contains));
+        assertEquals(3, fresh.stream().filter(freshWave::contains).count());
         respawn.teleport(reset.getX() - 2 * Level.TILE, reset.getY());
         assertTrue(PlayScreen.activateTahitiReturnWave(LevelTheme.TAHITI, respawn, reset, retry, fresh, freshWave));
         assertEquals(3, fresh.stream().filter(freshWave::contains).count());

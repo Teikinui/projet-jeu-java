@@ -171,12 +171,30 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         }
     }
 
-    /** La vague préinstanciée rejoint la simulation seulement après G→P, une fois par tentative. */
+    /** La vague arrive après G→P au premier essai, puis est réarmée dès le respawn. */
     static boolean activateTahitiReturnWave(LevelTheme theme, Player player, Goal goal,
                                             Level level, List<Trap> traps, List<Trap> wave) {
-        if (!moveTahitiGoalNearPlayer(theme, player, goal, level.getStartX(), level.getStartY())) return false;
-        traps.addAll(wave);
-        return true;
+        if (theme != LevelTheme.TAHITI) return false;
+        boolean goalMoved = moveTahitiGoalNearPlayer(theme, player, goal,
+                level.getStartX(), level.getStartY());
+        boolean waveAdded = level.getAttempt() > 0 && !goal.hasMovedToStart()
+                && addMissingReturnWave(traps, wave);
+        if (goal.hasMovedToStart()) {
+            waveAdded |= addMissingReturnWave(traps, wave);
+        }
+        return goalMoved || waveAdded;
+    }
+
+    /** Réinsère uniquement les nouveaux objets absents, sans dupliquer la vague. */
+    private static boolean addMissingReturnWave(List<Trap> traps, List<Trap> wave) {
+        boolean added = false;
+        for (Trap trap : wave) {
+            if (traps.stream().noneMatch(existing -> existing == trap)) {
+                traps.add(trap);
+                added = true;
+            }
+        }
+        return added;
     }
 
     /** L'étoile qui garde G à Tahiti se déclenche après le départ de G, pas avant. */
