@@ -5,7 +5,11 @@ import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.teikinui.game.TripTrapGame;
 import com.teikinui.game.app.InputHandler;
@@ -64,6 +68,15 @@ public final class PlayScreen extends BaseScreen implements GameListener {
     private List<TahitiTrapPlacement.Placement> tahitiPlan;
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();
     private final Hud hud;
+    private final TauntBubble taunt;
+    private final Color haloColor = new Color();
+    private ThemeStyle style;
+    private String themeKey;
+    private PlayerSprites playerSprites;
+    private PlayerSprites.State spriteState;
+    private float stateTime;
+    private float deathTime;
+    private boolean facingLeft;
 
     private LevelTheme theme;
     private PlayerInput input;
@@ -85,7 +98,8 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         bus.subscribe(session);
         bus.subscribe(levels);
         bus.subscribe(this);
-        hud = new Hud(game.getAssets().getFont(), timer, session, levels);
+        hud = new Hud(game.getAssets(), timer, session, levels);
+        taunt = new TauntBubble(game.getAssets());
         loadLevel();
     }
 
@@ -103,6 +117,16 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         player = new Player(level.getStartX(), level.getStartY(),
                 GameConfig.PLAYER_SIZE, GameConfig.PLAYER_SIZE, GameConfig.RUN_SPEED);
         player.setIcy(theme.isIcy());
+        if (theme != previous) {
+            style = ThemeStyle.of(theme);
+            themeKey = theme.name().toLowerCase(java.util.Locale.ROOT).replace("_", "");
+            playerSprites = new PlayerSprites(game.getAssets(), themeKey);
+            taunt.show(style, 3f);
+        }
+        spriteState = null;
+        stateTime = 0f;
+        deathTime = 0f;
+        facingLeft = false;
         traps = level.createTraps(player);
         goal = level.createGoal();
         tahitiReturnWave = List.of();
@@ -122,6 +146,11 @@ public final class PlayScreen extends BaseScreen implements GameListener {
     @Override
     public void onEvent(GameEvent event) {
         if (event == GameEvent.PLAYER_DIED) {
+            if (!died) {
+                deathTime = 0f;
+                changeSpriteState(PlayerSprites.State.DIE);
+                taunt.show(style, 2f);
+            }
             died = true;
         } else if (event == GameEvent.GOAL_REACHED) {
             goalReached = true;
@@ -133,6 +162,19 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         return died && !goalReached;
     }
 
+    /** Attend la fin du sprite de mort s'il existe, sans bloquer le fallback carré. */
+    static boolean shouldRespawnAfterDeath(boolean died, boolean goalReached,
+                                           float duration, float elapsed) {
+        return shouldRestartAfterDeath(died, goalReached) && elapsed >= duration;
+    }
+
+    private void changeSpriteState(PlayerSprites.State next) {
+        if (spriteState != next) {
+            spriteState = next;
+            stateTime = 0f;
+        }
+    }
+
     @Override
     public void update(float dt) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
@@ -142,6 +184,7 @@ public final class PlayScreen extends BaseScreen implements GameListener {
             return;
         }
         float step = Math.min(dt, MAX_STEP);
+        taunt.update(step);
         timer.update(step);
         if (timer.isTimeUp()) {
             bus.publish(GameEvent.TIME_UP);
@@ -149,13 +192,24 @@ public final class PlayScreen extends BaseScreen implements GameListener {
             return;
         }
 
-        player.update(step, input);
-        collisionSystem.move(player, level, step);
-        activateTahitiReturnWave(theme, player, goal, level, traps, tahitiReturnWave);
-        updateTraps(theme, level, goal, traps, step);
-        collisionSystem.checkContacts(player, traps, bus);
-        collisionSystem.checkFall(player, bus);
-        collisionSystem.checkContacts(player, List.of(goal), bus);
+        if (died) {
+            deathTime += step;
+            stateTime += step;
+        } else {
+            player.update(step, input);
+            collisionSystem.move(player, level, step);
+            activateTahitiReturnWave(theme, player, goal, level, traps, tahitiReturnWave);
+            updateTraps(theme, level, goal, traps, step);
+            collisionSystem.checkContacts(player, traps, bus);
+            collisionSystem.checkFall(player, bus);
+            collisionSystem.checkContacts(player, List.of(goal), bus);
+            if (!died) {
+                if (player.getVx() < -0.01f) facingLeft = true;
+                else if (player.getVx() > 0.01f) facingLeft = false;
+                changeSpriteState(PlayerSprites.stateFor(player.getVx(), player.isOnGround(), false));
+                stateTime += step;
+            }
+        }
 
         if (goalReached) {
             goalReached = false;
@@ -165,7 +219,8 @@ public final class PlayScreen extends BaseScreen implements GameListener {
             } else {
                 loadLevel();
             }
-        } else if (shouldRestartAfterDeath(died, goalReached)) {
+        } else if (shouldRespawnAfterDeath(died, goalReached,
+                playerSprites.getDuration(PlayerSprites.State.DIE), deathTime)) {
             died = false;
             loadLevel();
         }
@@ -228,37 +283,95 @@ public final class PlayScreen extends BaseScreen implements GameListener {
             // L'écran vient d'être fermé par Échap : son ShapeRenderer est détruit.
             return;
         }
+        Assets assets = game.getAssets();
+        batch.begin();
+        String backgroundName = "bg_" + themeKey;
+        if (assets.hasTexture(backgroundName)) {
+            batch.draw(assets.getTexture(backgroundName), 0, 0,
+                    GameConfig.VIEW_WIDTH, GameConfig.VIEW_HEIGHT);
+        } else {
+            assets.fill(batch, style.sky(), 0, 0, GameConfig.VIEW_WIDTH, GameConfig.VIEW_HEIGHT);
+        }
+        drawLevelTextures(batch, assets);
+        if (!theme.hidesGoal()) {
+            haloColor.set(style.halo());
+            haloColor.a = 0.6f + 0.4f * MathUtils.sin(stateTime * 4f);
+            assets.drawTinted(batch, "goal_halo", haloColor, goal.getX() - 8f, goal.getY() - 12f);
+        }
+        batch.end();
+
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         drawLevel();
-        drawTraps();
         if (theme.hidesGoal()) {
-            // Chine : la vraie sortie ressemble à un trou à pics comme les autres.
             drawSpikes(goal.getX(), goal.getY(), goal.getWidth(), 20f);
-        } else {
+        } else if (!assets.hasTexture("goal_" + themeKey)) {
             setColor(theme.getGoalColor());
             shapeRenderer.rect(goal.getX(), goal.getY(), goal.getWidth(), goal.getHeight());
         }
-        if (player.isBoosted()) {
-            // Boosté par le croissant : le joueur devient doré.
-            shapeRenderer.setColor(1f, 0.80f, 0.25f, 1f);
-        } else {
-            shapeRenderer.setColor(1f, 0.44f, 0.38f, 1f);
-        }
-        shapeRenderer.rect(player.getX(), player.getY(), player.getWidth(), player.getHeight());
         shapeRenderer.end();
 
         batch.begin();
+        if (!theme.hidesGoal() && assets.hasTexture("goal_" + themeKey)) {
+            batch.draw(assets.getTexture("goal_" + themeKey), goal.getX(), goal.getY(),
+                    GameConfig.TILE, GameConfig.TILE);
+        }
+        batch.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        drawTraps();
+        if (playerSprites.getAnimation(spriteState == null ? PlayerSprites.State.IDLE : spriteState) == null) {
+            if (player.isBoosted()) shapeRenderer.setColor(1f, 0.80f, 0.25f, 1f);
+            else shapeRenderer.setColor(1f, 0.44f, 0.38f, 1f);
+            shapeRenderer.rect(player.getX(), player.getY(), player.getWidth(), player.getHeight());
+        }
+        shapeRenderer.end();
+
+        batch.begin();
+        Animation<TextureRegion> animation = playerSprites.getAnimation(
+                spriteState == null ? PlayerSprites.State.IDLE : spriteState);
+        if (animation != null) {
+            TextureRegion frame = animation.getKeyFrame(stateTime);
+            if (facingLeft) batch.draw(frame, player.getX() + player.getWidth(), player.getY(),
+                    -player.getWidth(), player.getHeight());
+            else batch.draw(frame, player.getX(), player.getY(), player.getWidth(), player.getHeight());
+        }
         hud.draw(batch);
+        taunt.draw(batch);
         batch.end();
     }
 
+    static boolean isFloorSurface(Level level, int col, int row) {
+        return level.isWall(col, row) && !level.isWall(col, row + 1);
+    }
+
+    private void drawLevelTextures(SpriteBatch batch, Assets assets) {
+        for (int row = 0; row < level.getRows(); row++) {
+            for (int col = 0; col < level.getCols(); col++) {
+                if (!level.isWall(col, row)) continue;
+                String wall = "wall_" + themeKey;
+                String floor = "floor_" + themeKey;
+                String name = isFloorSurface(level, col, row) && assets.hasTexture(floor) ? floor : wall;
+                if (assets.hasTexture(name)) {
+                    batch.draw(assets.getTexture(name), col * Level.TILE, row * Level.TILE,
+                            Level.TILE, Level.TILE);
+                }
+            }
+        }
+    }
+
     private void drawLevel() {
+        Assets assets = game.getAssets();
         for (int row = 0; row < level.getRows(); row++) {
             for (int col = 0; col < level.getCols(); col++) {
                 if (level.isWall(col, row)) {
-                    setColor(theme.getWallColor());
-                    shapeRenderer.rect(col * Level.TILE, row * Level.TILE, Level.TILE, Level.TILE);
+                    String floor = "floor_" + themeKey;
+                    String name = isFloorSurface(level, col, row) && assets.hasTexture(floor)
+                            ? floor : "wall_" + themeKey;
+                    if (!assets.hasTexture(name)) {
+                        setColor(theme.getWallColor());
+                        shapeRenderer.rect(col * Level.TILE, row * Level.TILE, Level.TILE, Level.TILE);
+                    }
                 }
             }
         }

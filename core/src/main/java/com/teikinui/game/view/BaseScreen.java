@@ -45,6 +45,11 @@ public abstract class BaseScreen implements Screen, Updatable, Drawable {
         background = rgb.clone();
     }
 
+    /** Convertit une coordonnée verticale mesurée depuis le haut en coordonnée LibGDX. */
+    protected static float top(float yFromTop) {
+        return GameConfig.VIEW_HEIGHT - yFromTop;
+    }
+
     /** Si la fenêtre change de taille, l'image s'adapte sans se déformer. */
     @Override
     public void resize(int width, int height) {

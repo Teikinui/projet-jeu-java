@@ -72,9 +72,9 @@ class LaplandTest {
             assertEquals(theme == LevelTheme.LAPONIE, theme.isIcy(), theme.name());
             assertTrue(theme.getDifficulty() >= 1 && theme.getDifficulty() <= 4, theme.name());
         }
-        assertEquals(3, LevelTheme.CHINE.getDifficulty());
-        assertEquals(2, LevelTheme.LAPONIE.getDifficulty());
-        assertEquals(1, LevelTheme.FRANCE.getDifficulty());
+        assertEquals(2, LevelTheme.CHINE.getDifficulty());
+        assertEquals(4, LevelTheme.LAPONIE.getDifficulty());
+        assertEquals(3, LevelTheme.FRANCE.getDifficulty());
     }
 
     @Test
