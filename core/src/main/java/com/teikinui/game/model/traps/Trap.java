@@ -23,6 +23,7 @@ public abstract class Trap extends Entity implements Interactable {
     private Trigger trigger;
     private boolean visible = true;
     private boolean marked = true;
+    private String spriteName = "";
 
     protected Trap(float x, float y, float width, float height, Player target) {
         super(x, y, width, height);
@@ -41,6 +42,15 @@ public abstract class Trap extends Entity implements Interactable {
 
     public void setTrigger(Trigger trigger) {
         this.trigger = trigger;
+    }
+
+    /** Nom logique du PNG, optionnel pour les pièges construits sans fabrique. */
+    public void setSpriteName(String spriteName) {
+        this.spriteName = java.util.Objects.requireNonNull(spriteName);
+    }
+
+    public String getSpriteName() {
+        return spriteName;
     }
 
     public boolean isVisible() {

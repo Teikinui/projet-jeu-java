@@ -324,6 +324,7 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         shapeRenderer.end();
 
         batch.begin();
+        drawTrapSprites(batch, assets);
         drawCamouflagedTraps(batch, assets);
         batch.end();
 
@@ -414,9 +415,43 @@ public final class PlayScreen extends BaseScreen implements GameListener {
     }
 
 
+    /** Les camouflages et pièges à comportement graphique spécial conservent leur rendu. */
+    private static boolean keepsShapeDrawing(Trap trap) {
+        return trap instanceof FakeChili || trap instanceof HiddenSlab || trap instanceof SkyFall
+                || trap instanceof TiltSlab || trap instanceof InvisibleBlock;
+    }
+
+    private static boolean keepsBackdrop(Trap trap) {
+        return trap instanceof Monkey || trap instanceof SimitVendor || trap instanceof Croissant;
+    }
+
+    static boolean usesTrapSprite(Trap trap, boolean textureAvailable) {
+        return textureAvailable && !keepsShapeDrawing(trap);
+    }
+
+    static boolean drawsTrapShape(Trap trap, boolean textureAvailable) {
+        return !usesTrapSprite(trap, textureAvailable) || keepsBackdrop(trap);
+    }
+
+    private boolean hasTrapSprite(Trap trap) {
+        return usesTrapSprite(trap, game.getAssets().hasTexture(trap.getSpriteName()));
+    }
+
+    private void drawTrapSprites(SpriteBatch batch, Assets assets) {
+        for (Trap trap : traps) {
+            if (!trap.isVisible() || !hasTrapSprite(trap)
+                    || trap instanceof Croissant croissant && croissant.isEaten()) continue;
+            batch.draw(assets.getTexture(trap.getSpriteName()), trap.getX(), trap.getY(),
+                    trap.getWidth(), trap.getHeight());
+        }
+    }
+
     private void drawTraps() {
     for (Trap trap : traps) {
         if (!trap.isVisible()) {
+            continue;
+        }
+        if (!drawsTrapShape(trap, game.getAssets().hasTexture(trap.getSpriteName()))) {
             continue;
         }
          if (trap instanceof FallingBlock || trap instanceof InvisibleBlock) {

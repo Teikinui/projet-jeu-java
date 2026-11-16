@@ -63,6 +63,8 @@ public enum TrapFamily implements TrapCreator {
 
     @Override
     public Trap create(TrapType type, float x, float y, Player target) {
-        return creator.create(type, x, y, target);
+        Trap trap = creator.create(type, x, y, target);
+        trap.setSpriteName(type.getSpriteName());
+        return trap;
     }
 }
