@@ -10,8 +10,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.teikinui.game.TripTrapGame;
 import com.teikinui.game.app.InputHandler;
 import com.teikinui.game.level.LevelLoader;
@@ -324,6 +324,7 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         shapeRenderer.end();
 
         batch.begin();
+        drawTrapSprites(batch, assets);
         drawCamouflagedTraps(batch, assets);
         batch.end();
 
@@ -413,10 +414,42 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         }
     }
 
+    /** Pièges que TK dessine de façon spéciale : on garde entièrement son dessin. */
+    private static boolean keepsShapeDrawing(Trap trap) {
+        return trap instanceof FakeChili || trap instanceof HiddenSlab || trap instanceof SkyFall
+                || trap instanceof TiltSlab || trap instanceof InvisibleBlock;
+    }
+
+    /** Pièges avec un décor autour (singe, vendeur, tableau) : on garde le décor, l'image va par-dessus. */
+    private static boolean keepsBackdrop(Trap trap) {
+        return trap instanceof Monkey || trap instanceof SimitVendor || trap instanceof Croissant;
+    }
+
+    /** Vrai si ce piège doit être dessiné avec son image .png. */
+    private boolean hasTrapSprite(Trap trap) {
+        return !keepsShapeDrawing(trap) && game.getAssets().hasTexture(trap.getSpriteName());
+    }
+
+    /** Dessine l'image .png de chaque piège qui en a une. */
+    private void drawTrapSprites(SpriteBatch batch, Assets assets) {
+        for (Trap trap : traps) {
+            if (!trap.isVisible() || !hasTrapSprite(trap)) {
+                continue;
+            }
+            if (trap instanceof Croissant croissant && croissant.isEaten()) {
+                continue;
+            }
+            batch.draw(assets.getTexture(trap.getSpriteName()),
+                    trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
+        }
+    }
 
     private void drawTraps() {
     for (Trap trap : traps) {
         if (!trap.isVisible()) {
+            continue;
+        }
+        if (hasTrapSprite(trap) && !keepsBackdrop(trap)) {
             continue;
         }
          if (trap instanceof FallingBlock || trap instanceof InvisibleBlock) {
