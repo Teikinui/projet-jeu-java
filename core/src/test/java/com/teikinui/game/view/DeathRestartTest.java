@@ -26,4 +26,13 @@ class DeathRestartTest {
         assertFalse(PlayScreen.shouldRestartAfterDeath(true, true));
         assertFalse(PlayScreen.shouldRestartAfterDeath(false, false));
     }
+
+    @Test
+    void deathAnimationCompletesBeforeRespawnUnlessNoSpriteExists() {
+        assertFalse(PlayScreen.shouldRespawnAfterDeath(true, false, 0.4f, 0.2f));
+        assertTrue(PlayScreen.shouldRespawnAfterDeath(true, false, 0.4f, 0.4f));
+        assertTrue(PlayScreen.shouldRespawnAfterDeath(true, false, 0f, 0f));
+        assertFalse(PlayScreen.shouldRespawnAfterDeath(true, true, 0.4f, 1f));
+        assertFalse(PlayScreen.shouldRespawnAfterDeath(false, false, 0f, 1f));
+    }
 }

@@ -104,9 +104,10 @@ public enum LevelTheme {
     /** Difficulté affichée dans le menu : de 1 à 4 bombes. */
     public int getDifficulty() {
         return switch (this) {
-            case SRI_LANKA, TURQUIE, FRANCE -> 1;
-            case TAHITI, VIETNAM, LAPONIE -> 2;
-            case CHINE, TUNISIE -> 3;
+            case TAHITI -> 1;
+            case CHINE, TUNISIE -> 2;
+            case VIETNAM, SRI_LANKA, TURQUIE, FRANCE -> 3;
+            case LAPONIE -> 4;
         };
     }
 

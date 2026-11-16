@@ -8,6 +8,7 @@ import com.teikinui.game.model.GameSession;
 import com.teikinui.game.model.GameTimer;
 import com.teikinui.game.view.Assets;
 import com.teikinui.game.view.Hud;
+import com.teikinui.game.view.MessageScreen.Board;
 import com.teikinui.game.view.MenuScreen;
 import com.teikinui.game.view.MessageScreen;
 import com.teikinui.game.view.PlayScreen;
@@ -54,7 +55,9 @@ public class TripTrapGame extends Game {
     public void showTimeUp() {
         String details = "Les 3 minutes sont écoulées. Tu es mort " + session.getDeathCount() + " fois.\n"
                 + "Le voyage, ce n'est clairement pas pour toi.";
-        setScreen(new MessageScreen(this, "TEMPS ÉCOULÉ", details, 0f, this::showMenu));
+        setScreen(new MessageScreen(this, "TEMPS ÉCOULÉ", details,
+                Board.forResult(LevelTheme.values()[session.getCurrentLevel()],
+                        session.getDeathCount(), 0f, false), this::startGame, this::showMenu));
     }
 
     /** Le dernier objectif est attrapé : écran de victoire. */
@@ -62,7 +65,10 @@ public class TripTrapGame extends Game {
         String details = "Tu as fini ton tour du monde !\n"
                 + "Morts : " + session.getDeathCount()
                 + "     Temps restant : " + Hud.formatTime(timer.getRemaining());
-        setScreen(new MessageScreen(this, "BON VOYAGE !", details, 0f, this::showMenu));
+        setScreen(new MessageScreen(this, "BON VOYAGE !", details,
+                Board.forResult(LevelTheme.values()[session.getCurrentLevel()],
+                        session.getDeathCount(), timer.getRemaining(), true),
+                this::startGame, this::showMenu));
     }
 
     private void disposePlayScreen() {
