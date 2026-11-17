@@ -36,6 +36,8 @@ import com.teikinui.game.model.traps.Croissant;
 import com.teikinui.game.model.traps.Dervish;
 import com.teikinui.game.model.traps.FakeChili;
 import com.teikinui.game.model.traps.FakeSlab;
+import com.teikinui.game.model.traps.CrumbleBlock;
+import com.teikinui.game.model.traps.ground.FakeFloorTrap;
 import com.teikinui.game.model.traps.FallingBlock;
 import com.teikinui.game.model.traps.GrowingSpike;
 import com.teikinui.game.model.traps.HiddenSlab;
@@ -367,7 +369,10 @@ public final class PlayScreen extends BaseScreen implements GameListener {
     }
 
     static String fakeGoalSprite(LevelTheme theme, boolean goalTexturePresent) {
-        return theme == LevelTheme.SRI_LANKA && goalTexturePresent ? "goal_srilanka" : null;
+        if (!goalTexturePresent) {
+            return null;
+        }
+        return "goal_" + theme.name().toLowerCase(java.util.Locale.ROOT).replace("_", "");
     }
 
     static boolean maskHiddenSlabWithBackground(LevelTheme theme, boolean backgroundPresent) {
@@ -463,9 +468,16 @@ public final class PlayScreen extends BaseScreen implements GameListener {
             }
             if (!trap.isVisible() || !hasTrapSprite(trap)
                     || trap instanceof Croissant croissant && croissant.isEaten()) continue;
-            batch.draw(assets.getTexture(trap.getSpriteName()), trap.getX(), trap.getY(),
+            String name = copiesFloor(trap) && assets.hasTexture("floor_" + themeKey)
+                    ? "floor_" + themeKey : trap.getSpriteName();
+            batch.draw(assets.getTexture(name), trap.getX(), trap.getY(),
                     trap.getWidth(), trap.getHeight());
         }
+    }
+
+    /** Pièges troll qui doivent être identiques au sol du pays où ils sont posés. */
+    static boolean copiesFloor(Trap trap) {
+        return trap instanceof FakeSlab || trap instanceof CrumbleBlock || trap instanceof FakeFloorTrap;
     }
 
     private void drawTraps() {

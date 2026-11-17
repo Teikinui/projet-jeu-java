@@ -9,7 +9,9 @@ class LevelSpriteIntegrationTest {
     void fakeChiliUsesExactlyTheGoalSpriteWhenAvailable() {
         assertEquals("goal_srilanka", PlayScreen.fakeGoalSprite(LevelTheme.SRI_LANKA, true));
         assertNull(PlayScreen.fakeGoalSprite(LevelTheme.SRI_LANKA, false));
-        assertNull(PlayScreen.fakeGoalSprite(LevelTheme.TAHITI, true));
+        assertEquals("goal_tahiti", PlayScreen.fakeGoalSprite(LevelTheme.TAHITI, true));
+        assertEquals("goal_chine", PlayScreen.fakeGoalSprite(LevelTheme.CHINE, true));
+        assertEquals("goal_turquie", PlayScreen.fakeGoalSprite(LevelTheme.TURQUIE, true));
     }
 
     @Test
