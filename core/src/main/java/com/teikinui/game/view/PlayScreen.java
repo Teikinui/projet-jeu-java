@@ -341,9 +341,11 @@ public final class PlayScreen extends BaseScreen implements GameListener {
                 spriteState == null ? PlayerSprites.State.IDLE : spriteState);
         if (animation != null) {
             TextureRegion frame = animation.getKeyFrame(stateTime);
-            if (facingLeft) batch.draw(frame, player.getX() + player.getWidth(), player.getY(),
-                    -player.getWidth(), player.getHeight());
-            else batch.draw(frame, player.getX(), player.getY(), player.getWidth(), player.getHeight());
+            float size = 64f;
+            float drawX = player.getX() + player.getWidth() / 2f - size / 2f;
+            float drawY = player.getY() - 12f;
+            if (facingLeft) batch.draw(frame, drawX + size, drawY, -size, size);
+            else batch.draw(frame, drawX, drawY, size, size);
         }
         hud.draw(batch);
         taunt.draw(batch);
