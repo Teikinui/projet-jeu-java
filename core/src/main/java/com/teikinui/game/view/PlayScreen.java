@@ -341,13 +341,23 @@ public final class PlayScreen extends BaseScreen implements GameListener {
                 spriteState == null ? PlayerSprites.State.IDLE : spriteState);
         if (animation != null) {
             TextureRegion frame = animation.getKeyFrame(stateTime);
-            if (facingLeft) batch.draw(frame, player.getX() + player.getWidth(), player.getY(),
-                    -player.getWidth(), player.getHeight());
-            else batch.draw(frame, player.getX(), player.getY(), player.getWidth(), player.getHeight());
+            PlayerDrawBounds bounds = playerDrawBounds(player);
+            if (facingLeft) batch.draw(frame, bounds.x() + bounds.size(), bounds.y(),
+                    -bounds.size(), bounds.size());
+            else batch.draw(frame, bounds.x(), bounds.y(), bounds.size(), bounds.size());
         }
         hud.draw(batch);
         taunt.draw(batch);
         batch.end();
+    }
+
+    /** Canvas 48×48 : les pieds opaques (10 px de marge) reposent sur le sol à l'échelle 64. */
+    record PlayerDrawBounds(float x, float y, float size) { }
+
+    static PlayerDrawBounds playerDrawBounds(Player player) {
+        float size = 64f;
+        return new PlayerDrawBounds(player.getX() + (player.getWidth() - size) / 2f,
+                player.getY() - 12f, size);
     }
 
     static String fakeGoalSprite(LevelTheme theme, boolean goalTexturePresent) {
