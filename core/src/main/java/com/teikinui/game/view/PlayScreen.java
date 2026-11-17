@@ -63,6 +63,7 @@ public final class PlayScreen extends BaseScreen implements GameListener {
     private final GameTimer timer;
     private final LevelManager levels;
     private final EventBus bus = new EventBus();
+    private final SoundManager sounds = new SoundManager();
     private final InputHandler keyboard = new InputHandler();
     private final CollisionSystem collisionSystem = new CollisionSystem();
     private final Random random = new Random();
@@ -99,6 +100,7 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         bus.subscribe(session);
         bus.subscribe(levels);
         bus.subscribe(this);
+        bus.subscribe(sounds);
         hud = new Hud(game.getAssets(), timer, session, levels);
         taunt = new TauntBubble(game.getAssets());
         loadLevel();
@@ -121,6 +123,7 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         if (theme != previous) {
             style = ThemeStyle.of(theme);
             themeKey = theme.name().toLowerCase(java.util.Locale.ROOT).replace("_", "");
+            sounds.loadCountry(themeKey);
             playerSprites = new PlayerSprites(game.getAssets(), themeKey);
             taunt.show(style, 3f);
         }
@@ -178,6 +181,9 @@ public final class PlayScreen extends BaseScreen implements GameListener {
 
     @Override
     public void update(float dt) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+            sounds.toggleMute();
+        }
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             // Échap : on quitte le niveau et on revient au menu.
             leaving = true;
@@ -449,6 +455,12 @@ public final class PlayScreen extends BaseScreen implements GameListener {
 
     private void drawTrapSprites(SpriteBatch batch, Assets assets) {
         for (Trap trap : traps) {
+            if (trap instanceof Monkey monkey && assets.hasTexture("monkey_body")) {
+                batch.draw(assets.getTexture("monkey_body"), monkey.getHomeX(), monkey.getHomeY(), 32f, 32f);
+            }
+            if (trap instanceof SimitVendor vendor && assets.hasTexture("simit_vendor_body")) {
+                batch.draw(assets.getTexture("simit_vendor_body"), vendor.getHomeX(), vendor.getHomeY(), 32f, 32f);
+            }
             if (!trap.isVisible() || !hasTrapSprite(trap)
                     || trap instanceof Croissant croissant && croissant.isEaten()) continue;
             batch.draw(assets.getTexture(trap.getSpriteName()), trap.getX(), trap.getY(),
@@ -542,10 +554,12 @@ public final class PlayScreen extends BaseScreen implements GameListener {
 
     /** Singe : un corps marron sous le plafond + le fruit vert qu'il lance. */
     private void drawMonkey(Monkey monkey) {
-        shapeRenderer.setColor(0.45f, 0.30f, 0.18f, 1f);
-        shapeRenderer.rect(monkey.getHomeX() + 6f, monkey.getHomeY() + 10f, 20f, 20f);
-        shapeRenderer.setColor(0.85f, 0.70f, 0.55f, 1f);
-        shapeRenderer.rect(monkey.getHomeX() + 11f, monkey.getHomeY() + 14f, 10f, 8f);
+        if (!game.getAssets().hasTexture("monkey_body")) {
+            shapeRenderer.setColor(0.45f, 0.30f, 0.18f, 1f);
+            shapeRenderer.rect(monkey.getHomeX() + 6f, monkey.getHomeY() + 10f, 20f, 20f);
+            shapeRenderer.setColor(0.85f, 0.70f, 0.55f, 1f);
+            shapeRenderer.rect(monkey.getHomeX() + 11f, monkey.getHomeY() + 14f, 10f, 8f);
+        }
         shapeRenderer.setColor(0.55f, 0.75f, 0.20f, 1f);
         shapeRenderer.rect(monkey.getX(), monkey.getY(), monkey.getWidth(), monkey.getHeight());
     }
@@ -578,8 +592,10 @@ public final class PlayScreen extends BaseScreen implements GameListener {
 
     /** Vendeur de simits : un corps rouge + le simit (anneau brun) qu'il lance. */
     private void drawSimitVendor(SimitVendor vendor) {
-        shapeRenderer.setColor(0.75f, 0.15f, 0.15f, 1f);
-        shapeRenderer.rect(vendor.getHomeX() + 6f, vendor.getHomeY(), 20f, 28f);
+        if (!game.getAssets().hasTexture("simit_vendor_body")) {
+            shapeRenderer.setColor(0.75f, 0.15f, 0.15f, 1f);
+            shapeRenderer.rect(vendor.getHomeX() + 6f, vendor.getHomeY(), 20f, 28f);
+        }
         shapeRenderer.setColor(0.70f, 0.45f, 0.20f, 1f);
         shapeRenderer.rect(vendor.getX(), vendor.getY(), vendor.getWidth(), vendor.getHeight());
     }
@@ -599,5 +615,6 @@ public final class PlayScreen extends BaseScreen implements GameListener {
     @Override
     public void dispose() {
         shapeRenderer.dispose();
+        sounds.dispose();
     }
 }
