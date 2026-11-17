@@ -14,6 +14,7 @@ class MessageScreenBoardTest {
         assertEquals("00:00", ticket.clock());
         assertEquals("B2", ticket.gate());
         assertEquals("T'es mort 5 fois.", ticket.deathsLabel());
+        assertFalse(ticket.victory());
     }
 
     @Test
@@ -32,6 +33,7 @@ class MessageScreenBoardTest {
         assertEquals("8 SUR 8", ticket.completed());
         assertEquals("01:01", ticket.clock());
         assertEquals("H8", ticket.gate());
+        assertTrue(ticket.victory());
         assertThrows(IllegalArgumentException.class,
                 () -> MessageScreen.Board.forResult(null, 0, 0f, false));
     }

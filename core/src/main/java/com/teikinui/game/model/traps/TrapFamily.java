@@ -65,6 +65,7 @@ public enum TrapFamily implements TrapCreator {
     public Trap create(TrapType type, float x, float y, Player target) {
         Trap trap = creator.create(type, x, y, target);
         trap.setSpriteName(type.getSpriteName());
+        trap.setContactBounds(type.getContactBounds());
         return trap;
     }
 }

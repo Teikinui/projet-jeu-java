@@ -50,7 +50,7 @@ public final class CollisionSystem {
 
         // Position X prévue avant correction éventuelle par un mur.
         float targetX = player.x + vx * dt;
-        // Rangées occupées par la hitbox verticale du joueur.
+        // Rangées occupées par la hitbox de déplacement du joueur.
         int firstRow = floorToTile(player.y);
         int lastRow = floorToTile(player.y + player.height - EPSILON);
 

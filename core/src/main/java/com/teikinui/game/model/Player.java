@@ -2,6 +2,14 @@ package com.teikinui.game.model;
 
 /** Personnage contrôlé par le joueur, avec une gravité verticale simple. */
 public class Player extends Entity {
+    public static final float SPRITE_DRAW_SIZE = 64f;
+    public static final float SPRITE_DRAW_Y_OFFSET = -12f;
+    private static final float SPRITE_SOURCE_SIZE = 48f;
+    // Union of opaque pixels across the current idle, walk and jump PNG frames.
+    private static final float SPRITE_ALPHA_LEFT = 16f;
+    private static final float SPRITE_ALPHA_TOP = 9f;
+    private static final float SPRITE_ALPHA_RIGHT = 35f;
+    private static final float SPRITE_ALPHA_BOTTOM = 39f;
     private static final float GROUND_Y = 0f;
     /** Croissant (France) : on court 60 % plus vite et on saute 15 % plus haut. */
     private static final float BOOST_SPEED = 1.6f;
@@ -19,8 +27,23 @@ public class Player extends Entity {
 
     public Player(float x, float y, float width, float height, float moveSpeed) {
         super(x, y, width, height);
+        if (width <= 0f || height <= 0f) {
+            throw new IllegalArgumentException("Player width and height must be positive");
+        }
         this.moveSpeed = moveSpeed;
         this.onGround = y <= GROUND_Y;
+        setContactBounds(spriteContactBounds(width, height));
+    }
+
+    private static ContactBounds spriteContactBounds(float width, float height) {
+        float scale = SPRITE_DRAW_SIZE / SPRITE_SOURCE_SIZE;
+        float drawX = (width - SPRITE_DRAW_SIZE) / 2f;
+        float drawY = SPRITE_DRAW_Y_OFFSET;
+        return new ContactBounds(
+                (drawX + SPRITE_ALPHA_LEFT * scale) / width,
+                (drawY + (SPRITE_SOURCE_SIZE - SPRITE_ALPHA_BOTTOM) * scale) / height,
+                (drawX + SPRITE_ALPHA_RIGHT * scale) / width,
+                (drawY + (SPRITE_SOURCE_SIZE - SPRITE_ALPHA_TOP) * scale) / height);
     }
 
     /** Update générique de Entity : applique la gravité sans entrée clavier. */
