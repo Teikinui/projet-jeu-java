@@ -14,6 +14,8 @@ import java.util.random.RandomGenerator;
 /** Ajoute trois pièges de Tahiti sur des cases libres au-dessus d'un sol. */
 public final class TahitiTrapPlacement {
     private static final char[] TYPES = {'c', 's', 'q'};
+    /** Une étoile tire à 4 cases : rien d'aléatoire dans les 5 colonnes après P, sur sa rangée. */
+    static final int SAFE_COLUMNS_AFTER_START = 5;
 
     private TahitiTrapPlacement() { }
 
@@ -37,6 +39,7 @@ public final class TahitiTrapPlacement {
                         || !level.isWall(col, row - 1) || col == spawnCol && row == spawnRow
                         || col == goalCol && row == goalRow || col == goalCol && row == spawnRow
                         || row == goalRow && col >= goalCol - 3 && col < goalCol
+                        || isInStartSafeZone(col, row, spawnCol, spawnRow)
                         || returnPosition(col, row) || occupied(existing, col, row)) continue;
                 candidates.add(new int[] {col, row});
             }
@@ -75,6 +78,11 @@ public final class TahitiTrapPlacement {
             }
         }
         return instantiate(level, player, List.of(), positions);
+    }
+
+    /** Zone sans piège aléatoire autour du départ, pour ne jamais mourir dès l'apparition. */
+    static boolean isInStartSafeZone(int col, int row, int spawnCol, int spawnRow) {
+        return row == spawnRow && Math.abs(col - spawnCol) <= SAFE_COLUMNS_AFTER_START;
     }
 
     private static boolean returnPosition(int col, int row) {
