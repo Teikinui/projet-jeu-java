@@ -96,14 +96,14 @@ class TahitiReturnPhaseTest {
             assertEquals(Trap.State.WAITING, freshWave.get(i).getState());
         }
         Goal reset = retry.createGoal();
+        assertFalse(PlayScreen.activateTahitiReturnWave(LevelTheme.TAHITI, respawn, reset, retry, fresh, freshWave));
+        assertTrue(fresh.stream().noneMatch(freshWave::contains));
+        assertTrue(freshWave.stream().allMatch(t -> t.getState() == Trap.State.WAITING));
+        respawn.teleport(reset.getX() - 2 * Level.TILE, reset.getY());
         assertTrue(PlayScreen.activateTahitiReturnWave(LevelTheme.TAHITI, respawn, reset, retry, fresh, freshWave));
         assertTrue(fresh.containsAll(freshWave));
         assertEquals(3, fresh.stream().filter(freshWave::contains).count());
-        assertTrue(freshWave.stream().allMatch(t -> t.getState() == Trap.State.WAITING));
         assertFalse(PlayScreen.activateTahitiReturnWave(LevelTheme.TAHITI, respawn, reset, retry, fresh, freshWave));
-        assertEquals(3, fresh.stream().filter(freshWave::contains).count());
-        respawn.teleport(reset.getX() - 2 * Level.TILE, reset.getY());
-        assertTrue(PlayScreen.activateTahitiReturnWave(LevelTheme.TAHITI, respawn, reset, retry, fresh, freshWave));
         assertEquals(3, fresh.stream().filter(freshWave::contains).count());
         respawn.teleport(freshWave.get(1).getX(), freshWave.get(1).getY() - Level.TILE);
         PlayScreen.updateTraps(LevelTheme.TAHITI, retry, reset, fresh, 0f);

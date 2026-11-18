@@ -6,6 +6,7 @@ public abstract class Entity implements Updatable, Collidable {
     protected float y;
     protected float width;
     protected float height;
+    private ContactBounds contactBounds = ContactBounds.FULL;
 
     protected Entity(float x, float y, float width, float height) {
         this.x = x;
@@ -17,7 +18,16 @@ public abstract class Entity implements Updatable, Collidable {
     /** Hitbox calculée à partir de la position actuelle, y compris après les collisions. */
     @Override
     public Hitbox getHitbox() {
-        return new Hitbox(x, y, width, height);
+        return new Hitbox(
+                x + contactBounds.left() * width,
+                y + contactBounds.bottom() * height,
+                (contactBounds.right() - contactBounds.left()) * width,
+                (contactBounds.top() - contactBounds.bottom()) * height);
+    }
+
+    /** Sets the visible/contact rectangle as fractions of the entity's movement rectangle. */
+    public void setContactBounds(ContactBounds contactBounds) {
+        this.contactBounds = java.util.Objects.requireNonNull(contactBounds);
     }
 
     /** Mise à jour de l'entité pour le temps écoulé depuis la frame précédente. */
@@ -25,10 +35,7 @@ public abstract class Entity implements Updatable, Collidable {
 
     /** Retourne true lorsque les rectangles des deux entités se chevauchent. */
     public boolean intersects(Entity other) {
-        return x < other.x + other.width
-            && x + width > other.x
-            && y < other.y + other.height
-            && y + height > other.y;
+        return getHitbox().overlaps(other.getHitbox());
     }
 
     public float getX() {

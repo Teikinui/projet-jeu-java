@@ -19,6 +19,7 @@ import com.teikinui.game.level.LevelManager;
 import com.teikinui.game.level.LevelTheme;
 import com.teikinui.game.level.TahitiTrapPlacement;
 import com.teikinui.game.model.CollisionSystem;
+import com.teikinui.game.model.ContactBounds;
 import com.teikinui.game.model.EventBus;
 import com.teikinui.game.model.GameConfig;
 import com.teikinui.game.model.GameEvent;
@@ -36,6 +37,8 @@ import com.teikinui.game.model.traps.Croissant;
 import com.teikinui.game.model.traps.Dervish;
 import com.teikinui.game.model.traps.FakeChili;
 import com.teikinui.game.model.traps.FakeSlab;
+import com.teikinui.game.model.traps.CrumbleBlock;
+import com.teikinui.game.model.traps.ground.FakeFloorTrap;
 import com.teikinui.game.model.traps.FallingBlock;
 import com.teikinui.game.model.traps.GrowingSpike;
 import com.teikinui.game.model.traps.HiddenSlab;
@@ -140,10 +143,32 @@ public final class PlayScreen extends BaseScreen implements GameListener {
             // Prépare des objets neufs au respawn, hors rendu et collisions avant G→P.
             tahitiReturnWave = TahitiTrapPlacement.returnWave(level, player);
         }
+        configureContactBounds();
         session.setCurrentLevel(theme.ordinal());
         setBackground(theme.getBackgroundColor());
         // Vietnam : on enveloppe le clavier pour échanger gauche et droite (Décorateur).
         input = theme.hasInvertedControls() ? new ReversedInput(keyboard) : keyboard;
+    }
+
+    /** Keeps contact rectangles aligned with the currently rendered sprites. */
+    private void configureContactBounds() {
+        Assets assets = game.getAssets();
+        if (playerSprites.getAnimation(PlayerSprites.State.IDLE) == null) {
+            player.setContactBounds(ContactBounds.FULL);
+        }
+
+        String goalSprite = "goal_" + themeKey;
+        boolean hasGoalSprite = assets.hasTexture(goalSprite);
+        goal.setContactBounds(goalContactBounds(theme, hasGoalSprite));
+
+        for (Trap trap : traps) {
+            if (trap instanceof FakeChili) {
+                trap.setContactBounds(fakeGoalContactBounds(theme, hasGoalSprite));
+            } else if (!usesTrapSprite(trap, assets.hasTexture(trap.getSpriteName()))) {
+                // Shape-rendered and intentionally hidden traps keep their gameplay rectangle.
+                trap.setContactBounds(ContactBounds.FULL);
+            }
+        }
     }
 
     /** On note seulement ce qui s'est passé ; on le traite à la fin de update(). */
@@ -233,17 +258,13 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         }
     }
 
-    /** La vague arrive après G→P au premier essai, puis est réarmée dès le respawn. */
+    /** La vague est recréée au respawn, mais n'entre en jeu qu'après G→P. */
     static boolean activateTahitiReturnWave(LevelTheme theme, Player player, Goal goal,
                                             Level level, List<Trap> traps, List<Trap> wave) {
         if (theme != LevelTheme.TAHITI) return false;
         boolean goalMoved = moveTahitiGoalNearPlayer(theme, player, goal,
                 level.getStartX(), level.getStartY());
-        boolean waveAdded = level.getAttempt() > 0 && !goal.hasMovedToStart()
-                && addMissingReturnWave(traps, wave);
-        if (goal.hasMovedToStart()) {
-            waveAdded |= addMissingReturnWave(traps, wave);
-        }
+        boolean waveAdded = goal.hasMovedToStart() && addMissingReturnWave(traps, wave);
         return goalMoved || waveAdded;
     }
 
@@ -361,13 +382,26 @@ public final class PlayScreen extends BaseScreen implements GameListener {
     record PlayerDrawBounds(float x, float y, float size) { }
 
     static PlayerDrawBounds playerDrawBounds(Player player) {
-        float size = 64f;
+        float size = Player.SPRITE_DRAW_SIZE;
         return new PlayerDrawBounds(player.getX() + (player.getWidth() - size) / 2f,
-                player.getY() - 12f, size);
+                player.getY() + Player.SPRITE_DRAW_Y_OFFSET, size);
+    }
+
+    static ContactBounds goalContactBounds(LevelTheme theme, boolean goalTexturePresent) {
+        // La vraie sortie chinoise a toujours l'apparence de pics, même si son PNG existe.
+        if (theme.hidesGoal()) return new ContactBounds(0f, 0f, 1f, 0.5f);
+        return goalTexturePresent ? theme.getGoalContactBounds() : ContactBounds.FULL;
+    }
+
+    static ContactBounds fakeGoalContactBounds(LevelTheme theme, boolean goalTexturePresent) {
+        return goalContactBounds(theme, goalTexturePresent);
     }
 
     static String fakeGoalSprite(LevelTheme theme, boolean goalTexturePresent) {
-        return theme == LevelTheme.SRI_LANKA && goalTexturePresent ? "goal_srilanka" : null;
+        if (theme.hidesGoal() || !goalTexturePresent) {
+            return null;
+        }
+        return "goal_" + theme.name().toLowerCase(java.util.Locale.ROOT).replace("_", "");
     }
 
     static boolean maskHiddenSlabWithBackground(LevelTheme theme, boolean backgroundPresent) {
@@ -463,9 +497,16 @@ public final class PlayScreen extends BaseScreen implements GameListener {
             }
             if (!trap.isVisible() || !hasTrapSprite(trap)
                     || trap instanceof Croissant croissant && croissant.isEaten()) continue;
-            batch.draw(assets.getTexture(trap.getSpriteName()), trap.getX(), trap.getY(),
+            String name = copiesFloor(trap) && assets.hasTexture("floor_" + themeKey)
+                    ? "floor_" + themeKey : trap.getSpriteName();
+            batch.draw(assets.getTexture(name), trap.getX(), trap.getY(),
                     trap.getWidth(), trap.getHeight());
         }
+    }
+
+    /** Pièges troll qui doivent être identiques au sol du pays où ils sont posés. */
+    static boolean copiesFloor(Trap trap) {
+        return trap instanceof FakeSlab || trap instanceof CrumbleBlock || trap instanceof FakeFloorTrap;
     }
 
     private void drawTraps() {
@@ -485,7 +526,9 @@ public final class PlayScreen extends BaseScreen implements GameListener {
              drawPillar(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
         } else if (trap instanceof FakeChili) {
              // Même apparence que G, y compris lorsqu'un sprite est disponible.
-             if (fakeGoalSprite(theme, game.getAssets().hasTexture("goal_" + themeKey)) == null) {
+             if (theme.hidesGoal()) {
+                 drawSpikes(trap.getX(), trap.getY(), trap.getWidth(), 20f);
+             } else if (fakeGoalSprite(theme, game.getAssets().hasTexture("goal_" + themeKey)) == null) {
                  setColor(theme.getGoalColor());
                  shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
              }

@@ -1,5 +1,7 @@
 package com.teikinui.game.level;
 
+import com.teikinui.game.model.ContactBounds;
+
 /**
  * Les pays du voyage, dans l'ordre. Chaque ligne donne le fichier du niveau,
  * le nom affiché, l'objet à attraper et les couleurs (rouge, vert, bleu entre 0 et 1).
@@ -83,6 +85,20 @@ public enum LevelTheme {
 
     public String getGoalName() {
         return goalName;
+    }
+
+    /** Opaque PNG bounds for the country goal, in the goal's 32×32 tile. */
+    public ContactBounds getGoalContactBounds() {
+        return switch (this) {
+            case TAHITI -> ContactBounds.fromAlphaBounds(32, 32, 8, 3, 24, 29);
+            case CHINE -> ContactBounds.fromAlphaBounds(32, 32, 6, 5, 26, 28);
+            case TUNISIE -> ContactBounds.fromAlphaBounds(32, 32, 4, 2, 28, 30);
+            case VIETNAM -> ContactBounds.fromAlphaBounds(32, 32, 5, 7, 27, 26);
+            case SRI_LANKA -> ContactBounds.fromAlphaBounds(32, 32, 11, 4, 21, 28);
+            case TURQUIE -> ContactBounds.fromAlphaBounds(32, 32, 8, 6, 25, 26);
+            case FRANCE -> ContactBounds.fromAlphaBounds(32, 32, 6, 9, 26, 22);
+            case LAPONIE -> ContactBounds.fromAlphaBounds(32, 32, 4, 9, 28, 25);
+        };
     }
 
     public float[] getBackgroundColor() {

@@ -22,6 +22,9 @@ public final class MenuScreen extends BaseScreen {
     private static final float BOMB_X = 792f;
     private static final float BOMB_STEP = 18f;
     private static final float BOMB_SIZE = 12f;
+    static final float MENU_BUTTON_TOP_FROM_TOP = 268f;
+    static final float TAGLINE_BLOCK_HEIGHT = 46f;
+    static final float TAGLINE_BUTTON_GAP = 8f;
 
     private final LevelTheme[] countries = LevelTheme.values();
     private final ShapeRenderer shapes = new ShapeRenderer();
@@ -91,7 +94,7 @@ public final class MenuScreen extends BaseScreen {
 
         font.setColor(Palette.BEIGE);
         font.draw(batch, "Huit pays. Un chrono.\nAucune pitié.",
-                72f, top(232f), 330f, Align.left, true);
+                72f, top(taglineTopFromTop()), 330f, Align.left, true);
         font.setColor(Palette.INK);
         font.draw(batch, "Embarquer", 120f, top(279f));
         small.setColor(Palette.INK);
@@ -108,6 +111,10 @@ public final class MenuScreen extends BaseScreen {
         font.setColor(Color.WHITE);
         small.setColor(Color.WHITE);
         big.setColor(Color.WHITE);
+    }
+
+    static float taglineTopFromTop() {
+        return MENU_BUTTON_TOP_FROM_TOP - TAGLINE_BLOCK_HEIGHT - TAGLINE_BUTTON_GAP;
     }
 
     private void drawDepartureBoard(SpriteBatch batch, Assets assets) {

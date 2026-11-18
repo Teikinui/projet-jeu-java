@@ -16,7 +16,7 @@ import com.teikinui.game.model.GameConfig;
 public final class MessageScreen extends BaseScreen {
     /** Données figées à la fin de la partie (pas de référence au niveau qui sera détruit). */
     public record Board(String flight, String destination, String completed, String clock,
-                        String gate, String deathsLabel) {
+                        String gate, String deathsLabel, boolean victory) {
         public static Board forResult(LevelTheme country, int deaths, float remaining, boolean victory) {
             if (country == null || deaths < 0 || !Float.isFinite(remaining)) {
                 throw new IllegalArgumentException("Résultat de partie invalide.");
@@ -26,9 +26,12 @@ public final class MessageScreen extends BaseScreen {
                     country.getDisplayName().toUpperCase(Locale.ROOT),
                     (victory ? LevelTheme.values().length : index) + " SUR " + LevelTheme.values().length,
                     Hud.formatTime(remaining), "ABCDEFGH".charAt(index) + String.valueOf(index + 1),
-                    "T'es mort " + deaths + " fois.");
+                    "T'es mort " + deaths + " fois.", victory);
         }
     }
+
+    /** Tampon vert foncé de la victoire, lisible sur le billet crème. */
+    private static final Color STAMP_OK = Color.valueOf("#2E7D32");
 
     private final String title;
     private final String details;
@@ -82,12 +85,9 @@ public final class MessageScreen extends BaseScreen {
         BitmapFont font = assets.getFont();
         BitmapFont titleFont = assets.getTitleFont();
 
-        small.setColor(Palette.LOST);
-        small.draw(batch, "TEMPS ÉCOULÉ — " + board.clock(), 0, top(44) - 5,
-                GameConfig.VIEW_WIDTH + 5, Align.center, false);
-        small.setColor(Palette.CREAM);
-        small.draw(batch, "TEMPS ÉCOULÉ — " + board.clock(), 0, top(44),
-                GameConfig.VIEW_WIDTH, Align.center, false);
+        String banner = (board.victory() ? "ARRIVÉE À L'HEURE · " : "TEMPS ÉCOULÉ · ") + board.clock();
+        small.setColor(board.victory() ? Palette.ON_TIME : Palette.LOST);
+        small.draw(batch, banner, 0, top(44), GameConfig.VIEW_WIDTH, Align.center, false);
         titleFont.setColor(Palette.GOLD);
         titleFont.draw(batch, title, 5, top(64) - 5, GameConfig.VIEW_WIDTH, Align.center, false);
         titleFont.setColor(Palette.CREAM);
@@ -107,16 +107,17 @@ public final class MessageScreen extends BaseScreen {
         field(batch, small, font, "PAYS FINIS", board.completed(), 183, 297);
         field(batch, small, font, "MORTS", board.deathsLabel().replaceAll("[^0-9]", ""), 333, 297);
         field(batch, small, font, "CHRONO", board.clock(), 483, 297);
-        font.setColor(Palette.STAMP);
-        font.draw(batch, "EMBARQUEMENT REFUSÉ", 362, top(336));
+        font.setColor(board.victory() ? STAMP_OK : Palette.STAMP);
+        font.draw(batch, board.victory() ? "EMBARQUEMENT VALIDÉ" : "EMBARQUEMENT REFUSÉ", 362, top(336));
         small.setColor(Palette.PASS_LABEL);
         small.draw(batch, "PORTE", 648, top(217));
         font.setColor(Palette.INK);
         font.draw(batch, board.gate(), 648, top(230));
         small.setColor(Palette.PASS_LABEL);
-        small.draw(batch, "fermée", 648, top(272));
+        small.draw(batch, board.victory() ? "à l'heure" : "fermée", 648, top(272));
         font.setColor(Palette.INK);
         font.draw(batch, "Reprendre un vol", 278, top(416));
+        font.setColor(Palette.CREAM);
         font.draw(batch, "Hall des départs", 516, top(416));
         small.setColor(Palette.BEIGE);
         small.draw(batch, "[R]", 459, top(416));

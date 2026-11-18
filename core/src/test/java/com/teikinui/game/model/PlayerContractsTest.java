@@ -35,14 +35,15 @@ class PlayerContractsTest {
     @Test
     void hitboxFollowsCollisionMovementAndEdgesDoNotOverlap() {
         Player player = new Player(32f, 32f, 32f, 32f, GameConfig.RUN_SPEED);
-        assertEquals(32f, player.getHitbox().getX());
+        float contactOffsetX = 32f / 6f;
+        assertEquals(32f + contactOffsetX, player.getHitbox().getX(), 0.001f);
         assertFalse(player.getHitbox().overlaps(new Hitbox(64f, 32f, 32f, 32f)));
         player.update(0.1f, false, true, false);
         Tile[][] grid = {{Tile.WALL, Tile.WALL, Tile.WALL, Tile.WALL},
                          {Tile.WALL, Tile.EMPTY, Tile.EMPTY, Tile.WALL},
                          {Tile.WALL, Tile.EMPTY, Tile.EMPTY, Tile.WALL}};
         new CollisionSystem().move(player, new Level(grid), 0.1f);
-        assertEquals(player.getX(), player.getHitbox().getX());
+        assertEquals(player.getX() + contactOffsetX, player.getHitbox().getX(), 0.001f);
         assertEquals(player.getY(), player.getHitbox().getY());
         assertTrue(player.collidesWith(new Collidable() {
             @Override public Hitbox getHitbox() { return new Hitbox(player.getX(), player.getY(), 32f, 32f); }
