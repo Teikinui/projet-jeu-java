@@ -9,8 +9,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.teikinui.game.TripTrapGame;
 import com.teikinui.game.app.InputHandler;
 import com.teikinui.game.level.LevelLoader;
@@ -33,11 +33,10 @@ import com.teikinui.game.model.ReversedInput;
 import com.teikinui.game.model.traps.Cactus;
 import com.teikinui.game.model.traps.ChargingWall;
 import com.teikinui.game.model.traps.Croissant;
+import com.teikinui.game.model.traps.CrumbleBlock;
 import com.teikinui.game.model.traps.Dervish;
 import com.teikinui.game.model.traps.FakeChili;
 import com.teikinui.game.model.traps.FakeSlab;
-import com.teikinui.game.model.traps.CrumbleBlock;
-import com.teikinui.game.model.traps.ground.FakeFloorTrap;
 import com.teikinui.game.model.traps.FallingBlock;
 import com.teikinui.game.model.traps.GrowingSpike;
 import com.teikinui.game.model.traps.HiddenSlab;
@@ -52,8 +51,9 @@ import com.teikinui.game.model.traps.Snowball;
 import com.teikinui.game.model.traps.SpikeFloor;
 import com.teikinui.game.model.traps.TiltSlab;
 import com.teikinui.game.model.traps.Trap;
-import com.teikinui.game.model.traps.projectile.Starfish;
+import com.teikinui.game.model.traps.ground.FakeFloorTrap;
 import com.teikinui.game.model.traps.ground.QuickSand;
+import com.teikinui.game.model.traps.projectile.Starfish;
 
 /**
  * La partie : relie le niveau, le chrono, les collisions et l'affichage.
@@ -72,6 +72,7 @@ public final class PlayScreen extends BaseScreen implements GameListener {
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();
     private final Hud hud;
     private final TauntBubble taunt;
+    private final SkyCountdown skyCountdown;
     private final Color haloColor = new Color();
     private ThemeStyle style;
     private String themeKey;
@@ -104,6 +105,7 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         bus.subscribe(sounds);
         hud = new Hud(game.getAssets(), timer, session, levels);
         taunt = new TauntBubble(game.getAssets());
+        skyCountdown = new SkyCountdown(game.getAssets());
         loadLevel();
     }
 
@@ -133,6 +135,7 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         deathTime = 0f;
         facingLeft = false;
         traps = level.createTraps(player);
+        skyCountdown.watch(findSky(traps), style);
         goal = level.createGoal();
         tahitiReturnWave = List.of();
         if (theme == LevelTheme.TAHITI) {
@@ -317,10 +320,17 @@ public final class PlayScreen extends BaseScreen implements GameListener {
             assets.fill(batch, style.sky(), 0, 0, GameConfig.VIEW_WIDTH, GameConfig.VIEW_HEIGHT);
         }
         drawLevelTextures(batch, assets);
+        haloColor.set(style.halo());
+        haloColor.a = 0.6f + 0.4f * MathUtils.sin(stateTime * 4f);
         if (!theme.hidesGoal()) {
-            haloColor.set(style.halo());
-            haloColor.a = 0.6f + 0.4f * MathUtils.sin(stateTime * 4f);
             assets.drawTinted(batch, "goal_halo", haloColor, goal.getX() - 8f, goal.getY() - 12f);
+        } else {
+            // Chine : le halo brille autour du faux bol pour attirer le joueur.
+            for (Trap trap : traps) {
+                if (trap instanceof FakeChili && trap.isVisible()) {
+                    assets.drawTinted(batch, "goal_halo", haloColor, trap.getX() - 8f, trap.getY() - 12f);
+                }
+            }
         }
         batch.end();
 
@@ -371,7 +381,18 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         }
         hud.draw(batch);
         taunt.draw(batch);
+        skyCountdown.draw(batch);
         batch.end();
+    }
+
+    /** Le rideau de la Chine, s'il y en a un dans ce pays. */
+    static SkyFall findSky(List<Trap> traps) {
+        for (Trap trap : traps) {
+            if (trap instanceof SkyFall sky) {
+                return sky;
+            }
+        }
+        return null;
     }
 
     /** Canvas 48×48 : les pieds opaques (10 px de marge) reposent sur le sol à l'échelle 64. */
@@ -390,11 +411,12 @@ public final class PlayScreen extends BaseScreen implements GameListener {
     }
 
     static ContactBounds fakeGoalContactBounds(LevelTheme theme, boolean goalTexturePresent) {
-        return goalContactBounds(theme, goalTexturePresent);
+        // En Chine, le faux objectif est le bol de nouilles : sa zone suit le dessin du bol.
+        return goalTexturePresent ? theme.getGoalContactBounds() : ContactBounds.FULL;
     }
 
     static String fakeGoalSprite(LevelTheme theme, boolean goalTexturePresent) {
-        if (theme.hidesGoal() || !goalTexturePresent) {
+        if (!goalTexturePresent) {
             return null;
         }
         return "goal_" + theme.name().toLowerCase(java.util.Locale.ROOT).replace("_", "");
@@ -532,10 +554,8 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         } else if (trap instanceof GrowingSpike) {
              drawPillar(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
         } else if (trap instanceof FakeChili) {
-             // Même apparence que G, y compris lorsqu'un sprite est disponible.
-             if (theme.hidesGoal()) {
-                 drawSpikes(trap.getX(), trap.getY(), trap.getWidth(), 20f);
-             } else if (fakeGoalSprite(theme, game.getAssets().hasTexture("goal_" + themeKey)) == null) {
+             // Même apparence que l'objectif du pays (en Chine : le bol, qui sert d'appât).
+             if (fakeGoalSprite(theme, game.getAssets().hasTexture("goal_" + themeKey)) == null) {
                  setColor(theme.getGoalColor());
                  shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
              }
