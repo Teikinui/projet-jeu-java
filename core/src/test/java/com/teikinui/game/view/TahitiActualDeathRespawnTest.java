@@ -6,7 +6,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Random;
 import org.junit.jupiter.api.Test;
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
@@ -16,7 +15,6 @@ import com.teikinui.game.TripTrapGame;
 import com.teikinui.game.app.InputHandler;
 import com.teikinui.game.level.LevelManager;
 import com.teikinui.game.level.LevelTheme;
-import com.teikinui.game.level.TahitiTrapPlacement;
 import com.teikinui.game.model.CollisionSystem;
 import com.teikinui.game.model.EventBus;
 import com.teikinui.game.model.GameEvent;
@@ -65,10 +63,6 @@ class TahitiActualDeathRespawnTest {
             set(screen, "levels", new LevelManager(LevelTheme.TAHITI));
             set(screen, "session", new GameSession());
             set(screen, "timer", new GameTimer());
-            set(screen, "random", new Random(42));
-            set(screen, "tahitiPlan", List.of(new TahitiTrapPlacement.Placement('c', 12, 7),
-                    new TahitiTrapPlacement.Placement('q', 13, 7),
-                    new TahitiTrapPlacement.Placement('c', 14, 7)));
             set(screen, "keyboard", new InputHandler());
             set(screen, "collisionSystem", new CollisionSystem());
             EventBus bus = new EventBus();
@@ -85,6 +79,8 @@ class TahitiActualDeathRespawnTest {
             Player firstPlayer = (Player) field(screen, "player");
             Goal firstGoal = (Goal) field(screen, "goal");
             List<Trap> before = traps(screen);
+            assertEquals(firstLevel.createTraps(firstPlayer).size(), before.size(),
+                    "Tahiti ne doit plus générer trois pièges aléatoires");
             List<float[]> startPositions = before.stream().map(t -> new float[] {t.getX(), t.getY()}).toList();
             CocoFall central = before.stream().filter(CocoFall.class::isInstance)
                     .map(CocoFall.class::cast).filter(t -> t.getX() == 18 * Level.TILE && t.getY() == 10 * Level.TILE)
