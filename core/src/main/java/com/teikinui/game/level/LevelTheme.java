@@ -25,10 +25,10 @@ public enum LevelTheme {
             new float[] {0.30f, 0.55f, 0.28f},
             new float[] {0.93f, 0.82f, 0.50f},
             true),
-    SRI_LANKA("srilanka.txt", "Sri Lanka", "le piment",
+    SRI_LANKA("srilanka.txt", "Sri Lanka", "le bâton de cannelle",
             new float[] {0.08f, 0.22f, 0.14f},
             new float[] {0.72f, 0.40f, 0.22f},
-            new float[] {0.85f, 0.10f, 0.10f}),
+            new float[] {0.55f, 0.27f, 0.07f}),
     TURQUIE("turquie.txt", "Turquie", "la lampe turque",
             new float[] {0.04f, 0.28f, 0.30f},
             new float[] {0.80f, 0.55f, 0.45f},
@@ -92,9 +92,9 @@ public enum LevelTheme {
         return switch (this) {
             case TAHITI -> ContactBounds.fromAlphaBounds(32, 32, 8, 3, 24, 29);
             case CHINE -> ContactBounds.fromAlphaBounds(32, 32, 6, 5, 26, 28);
-            case TUNISIE -> ContactBounds.fromAlphaBounds(32, 32, 4, 2, 28, 30);
+            case TUNISIE -> ContactBounds.fromAlphaBounds(32, 32, 11, 4, 21, 28);
             case VIETNAM -> ContactBounds.fromAlphaBounds(32, 32, 5, 7, 27, 26);
-            case SRI_LANKA -> ContactBounds.fromAlphaBounds(32, 32, 11, 4, 21, 28);
+            case SRI_LANKA -> ContactBounds.fromAlphaBounds(32, 32, 2, 2, 29, 31);            
             case TURQUIE -> ContactBounds.fromAlphaBounds(32, 32, 8, 6, 25, 26);
             case FRANCE -> ContactBounds.fromAlphaBounds(32, 32, 6, 9, 26, 22);
             case LAPONIE -> ContactBounds.fromAlphaBounds(32, 32, 4, 9, 28, 25);

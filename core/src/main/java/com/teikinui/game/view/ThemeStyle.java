@@ -25,7 +25,7 @@ public record ThemeStyle(Color hudBar, Color accent, Color soft, Color halo, Col
                     "Il pique pas, celui-là. Promis.");
             case VIETNAM -> make("#1A2A0E", "#F2C14E", "#CFE3D6", "#C8322A", "#CFE3D6",
                     "Gauche, c'est à droite. Ou l'inverse ?");
-            case SRI_LANKA -> make("#2A1408", "#F2992E", "#F6C27A", "#D7261E", "#F6C27A",
+            case SRI_LANKA -> make("#2A1408", "#F2992E", "#F6C27A", "#F2992E", "#F6C27A",
                     "Le singe vise bien, hein ?");
             case TURQUIE -> make("#2A1A1A", "#3CB7B0", "#E8CDBB", "#E0B04A", "#F7D9B5",
                     "Regarde la mosaïque, pas tes pieds.");

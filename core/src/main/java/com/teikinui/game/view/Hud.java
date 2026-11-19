@@ -1,16 +1,22 @@
 package com.teikinui.game.view;
 
+import java.util.Locale;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.teikinui.game.level.LevelManager;
+import com.teikinui.game.level.LevelTheme;
 import com.teikinui.game.model.GameConfig;
 import com.teikinui.game.model.GameSession;
 import com.teikinui.game.model.GameTimer;
-import com.teikinui.game.level.LevelManager;
-import com.teikinui.game.level.LevelTheme;
 
 /** Bandeau supérieur : pays, chrono et morts, dessiné sur la rangée haute du niveau. */
 public final class Hud implements Drawable {
+    private static final float NAME_X = 130f;
+    private static final float FLAG_GAP = 10f;
+    private final GlyphLayout nameLayout = new GlyphLayout();
     private final Assets assets;
     private final GameTimer timer;
     private final GameSession session;
@@ -39,8 +45,10 @@ public final class Hud implements Drawable {
 
         font.setColor(style.accent());
         font.draw(batch, "NIVEAU " + (levels.getCurrent().ordinal() + 1), 16f, bottom + 24f);
+        String name = levels.getCurrent().getDisplayName();
         font.setColor(style.soft());
-        font.draw(batch, levels.getCurrent().getDisplayName(), 130f, bottom + 24f);
+        font.draw(batch, name, NAME_X, bottom + 24f);
+        drawFlag(batch, font, name, bottom);
 
         assets.drawTinted(batch, "icon_clock", style.halo(), 420f, bottom + 8f);
         font.setColor(timer.getRemaining() <= 30f ? Palette.TIME_LOW : Palette.WHITE);
@@ -50,6 +58,21 @@ public final class Hud implements Drawable {
         font.setColor(Palette.WHITE);
         font.draw(batch, Integer.toString(session.getDeathCount()), 902f, bottom + 24f);
         font.setColor(Color.WHITE);
+    }
+
+        /** Le petit drapeau du pays, juste à droite de son nom. */
+    private void drawFlag(SpriteBatch batch, BitmapFont font, String name, float bottom) {
+        String flag = flagSprite(levels.getCurrent());
+        if (!assets.hasTexture(flag)) {
+            return;
+        }
+        nameLayout.setText(font, name);
+        batch.draw(assets.getTexture(flag), NAME_X + nameLayout.width + FLAG_GAP, bottom + 8f);
+    }
+
+    /** SRI_LANKA donne « flag_srilanka » : l'image assets/sprites/flag_srilanka.png. */
+    static String flagSprite(LevelTheme theme) {
+        return "flag_" + theme.name().toLowerCase(Locale.ROOT).replace("_", "");
     }
 
     private void updateStyle() {
