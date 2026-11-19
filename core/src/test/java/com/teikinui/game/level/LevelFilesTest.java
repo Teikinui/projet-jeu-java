@@ -1,10 +1,5 @@
 package com.teikinui.game.level;
 
-import com.teikinui.game.model.GameConfig;
-import com.teikinui.game.model.Level;
-import com.teikinui.game.model.Player;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,6 +8,11 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
+
+import com.teikinui.game.model.GameConfig;
+import com.teikinui.game.model.Level;
+import com.teikinui.game.model.Player;
 
 /** Chaque pays doit remplir exactement l'écran : 30 x 17 cases, un départ, un objectif. */
 class LevelFilesTest {
@@ -45,5 +45,13 @@ class LevelFilesTest {
             assertNotNull(level.createTraps(player));
             assertNotNull(level.createGoal());
         }
+    }
+
+     @Test
+    void franceHidesASpikeAfterTheHoleAndAFakeGoalBeforeTheRealOne() throws IOException {
+        List<String> lines = Files.readString(assetFile("france.txt")).strip().lines().toList();
+        String floor = lines.get(13);
+        assertTrue(floor.indexOf('i') > 17, "pic caché après le grand trou");
+        assertTrue(floor.indexOf('v') < floor.indexOf('G'), "faux objectif avant le vrai");
     }
 }
