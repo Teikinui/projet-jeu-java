@@ -22,13 +22,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TahitiGoalPathTest {
     @Test
-    void walkingAlongUpperPlatformMakesGoalMoveBeforeFirstDeath() throws Exception {
+    void walkingNearGoalMakesItMoveBeforeGuardingStarfishCanKillPlayer() throws Exception {
         Path path = Path.of("assets/tahiti.txt");
         if (!Files.exists(path)) path = Path.of("..", "assets", "tahiti.txt");
         Level level = LevelLoader.fromString(Files.readString(path));
         Goal goal = level.createGoal();
-        // Rangée du G, juste avant le rayon de déclenchement de l'étoile à la colonne 24.
-        Player player = new Player(19 * Level.TILE, goal.getY(), GameConfig.PLAYER_SIZE,
+        // Rangée du G, après les cocos des colonnes 19 et 22 de la nouvelle carte.
+        // Ce test vérifie la séquence objectif/étoile, pas un passage sans saut sous les cocos.
+        Player player = new Player(24 * Level.TILE, goal.getY(), GameConfig.PLAYER_SIZE,
                 GameConfig.PLAYER_SIZE, GameConfig.RUN_SPEED);
         List<Trap> traps = new ArrayList<>(level.createTraps(player));
         EventBus bus = new EventBus();
