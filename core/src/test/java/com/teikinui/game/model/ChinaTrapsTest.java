@@ -3,6 +3,7 @@ package com.teikinui.game.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
@@ -57,7 +58,7 @@ class ChinaTrapsTest {
         Player player = new Player(32f, 32f, 32f, 32f, GameConfig.RUN_SPEED);
         List<Trap> traps = level.createTraps(player);
         SkyFall sky = (SkyFall) first(traps, SkyFall.class);
-        play(level, traps, player, false, false, 2.2f);
+        play(level, traps, player, false, false, 4.7f);
         assertTrue(sky.isDangerous());
         // Le ciel est descendu jusqu'à la tête du joueur.
         float head = player.getY() + player.getHeight();
@@ -69,11 +70,29 @@ class ChinaTrapsTest {
     }
 
     @Test
+    void aCountdownAnnouncesTheSkyAndMovingDuringItIsSafe() {
+        Level level = LevelLoader.fromString(ROOM);
+        Player player = new Player(32f, 32f, 32f, 32f, GameConfig.RUN_SPEED);
+        List<Trap> traps = level.createTraps(player);
+        SkyFall sky = (SkyFall) first(traps, SkyFall.class);
+        play(level, traps, player, false, false, 0.6f);
+        assertTrue(sky.isWarning());
+        assertEquals(3, sky.getCountdown());
+        play(level, traps, player, false, true, 1.5f);
+        assertTrue(sky.isWarning());
+        assertEquals(2, sky.getCountdown());
+        assertTrue(received.isEmpty(), "bouger pendant le décompte ne tue pas");
+        play(level, traps, player, false, false, 1.6f);
+        assertTrue(sky.isDangerous());
+        assertEquals(0, sky.getCountdown(), "plus de décompte une fois le rideau tombé");
+    }
+
+    @Test
     void movingWhileTheSkyFallsKills() {
         Level level = LevelLoader.fromString(ROOM);
         Player player = new Player(32f, 32f, 32f, 32f, GameConfig.RUN_SPEED);
         List<Trap> traps = level.createTraps(player);
-        play(level, traps, player, false, false, 1.5f);
+        play(level, traps, player, false, false, 3.7f);
         play(level, traps, player, false, true, 0.2f);
         assertTrue(received.contains(GameEvent.PLAYER_DIED));
     }
