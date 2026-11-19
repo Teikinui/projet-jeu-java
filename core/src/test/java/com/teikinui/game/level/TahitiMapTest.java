@@ -14,15 +14,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TahitiMapTest {
     @Test
-    void bothFallingTrapsAreCoconuts() throws IOException {
+    void everyFallingTrapOnTheFixedMapIsACoconut() throws IOException {
         Path path = Path.of("assets/tahiti.txt");
         if (!Files.exists(path)) path = Path.of("..", "assets", "tahiti.txt");
         String map = Files.readString(path);
-        assertEquals(2, map.chars().filter(c -> c == 'c').count());
+        assertEquals(8, map.chars().filter(c -> c == 'c').count(),
+                "La nouvelle carte place huit cocos sur ses différents étages");
         assertEquals(0, map.chars().filter(c -> c == 'h').count());
         Level level = LevelLoader.fromString(map);
         Player player = new Player(level.getStartX(), level.getStartY(),
                 GameConfig.PLAYER_SIZE, GameConfig.PLAYER_SIZE, GameConfig.RUN_SPEED);
-        assertEquals(2, level.createTraps(player).stream().filter(CocoFall.class::isInstance).count());
+        assertEquals(8, level.createTraps(player).stream().filter(CocoFall.class::isInstance).count());
     }
 }
