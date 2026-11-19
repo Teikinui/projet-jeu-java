@@ -117,13 +117,12 @@ public enum LevelTheme {
         return invertedControls;
     }
 
-    /** Difficulté affichée dans le menu : de 1 à 4 bombes. */
+    /** Difficulté affichée dans le menu : de 1 à 3 bombes. */
     public int getDifficulty() {
         return switch (this) {
-            case TAHITI -> 1;
-            case CHINE, TUNISIE -> 2;
-            case VIETNAM, SRI_LANKA, TURQUIE, FRANCE -> 3;
-            case LAPONIE -> 4;
+            case TURQUIE, FRANCE -> 1;
+            case TAHITI, VIETNAM, SRI_LANKA -> 2;
+            case CHINE, TUNISIE, LAPONIE -> 3;
         };
     }
 
