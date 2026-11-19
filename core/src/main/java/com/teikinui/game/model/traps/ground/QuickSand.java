@@ -12,11 +12,19 @@ public final class QuickSand extends Trap {
         super(x, y, GameConfig.TILE, GameConfig.TILE, target);
     }
 
-    @Override protected boolean isTriggered() { return collidesWith(target); }
+    private boolean touchesSand(Player player) {
+        // Dans la carte Tahiti q est une tuile solide : les pieds reposent sur son bord supérieur.
+        boolean standingOnTop = Math.abs(player.getY() - (y + height)) < 1f
+                && player.getHitbox().getX() < x + width
+                && player.getHitbox().getX() + player.getHitbox().getWidth() > x;
+        return collidesWith(player) || standingOnTop;
+    }
+
+    @Override protected boolean isTriggered() { return touchesSand(target); }
     @Override protected void activate(float dt) { }
 
     @Override public void onPlayerContact(Player player, EventBus bus) {
-        if (collidesWith(player)) player.slowNextFrame();
+        if (touchesSand(player)) player.slowNextFrame();
         else state = State.WAITING;
     }
 
