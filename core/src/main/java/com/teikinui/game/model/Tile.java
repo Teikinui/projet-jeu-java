@@ -9,7 +9,7 @@ public enum Tile {
 
     public static Tile fromChar(char symbol) {
         return switch (symbol) {
-            case '#' -> WALL;
+            case '#', 'q' -> WALL; // le sable mouvant est une case de sol solide
             case 'P' -> START;
             case 'G' -> GOAL;
             default -> EMPTY;

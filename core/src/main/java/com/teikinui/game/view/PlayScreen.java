@@ -1,7 +1,6 @@
 package com.teikinui.game.view;
 
 import java.util.List;
-import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -54,6 +53,7 @@ import com.teikinui.game.model.traps.SpikeFloor;
 import com.teikinui.game.model.traps.TiltSlab;
 import com.teikinui.game.model.traps.Trap;
 import com.teikinui.game.model.traps.projectile.Starfish;
+import com.teikinui.game.model.traps.ground.QuickSand;
 
 /**
  * La partie : relie le niveau, le chrono, les collisions et l'affichage.
@@ -69,8 +69,6 @@ public final class PlayScreen extends BaseScreen implements GameListener {
     private final SoundManager sounds = new SoundManager();
     private final InputHandler keyboard = new InputHandler();
     private final CollisionSystem collisionSystem = new CollisionSystem();
-    private final Random random = new Random();
-    private List<TahitiTrapPlacement.Placement> tahitiPlan;
     private final ShapeRenderer shapeRenderer = new ShapeRenderer();
     private final Hud hud;
     private final TauntBubble taunt;
@@ -138,8 +136,6 @@ public final class PlayScreen extends BaseScreen implements GameListener {
         goal = level.createGoal();
         tahitiReturnWave = List.of();
         if (theme == LevelTheme.TAHITI) {
-            if (tahitiPlan == null) tahitiPlan = TahitiTrapPlacement.plan(level, traps, random);
-            traps = TahitiTrapPlacement.instantiate(level, player, traps, tahitiPlan);
             // Prépare des objets neufs au respawn, hors rendu et collisions avant G→P.
             tahitiReturnWave = TahitiTrapPlacement.returnWave(level, player);
         }
@@ -499,9 +495,20 @@ public final class PlayScreen extends BaseScreen implements GameListener {
                     || trap instanceof Croissant croissant && croissant.isEaten()) continue;
             String name = copiesFloor(trap) && assets.hasTexture("floor_" + themeKey)
                     ? "floor_" + themeKey : trap.getSpriteName();
-            batch.draw(assets.getTexture(name), trap.getX(), trap.getY(),
+            batch.draw(assets.getTexture(name), trap.getX(), trapDrawY(level, trap),
                     trap.getWidth(), trap.getHeight());
         }
+    }
+
+    /** Une case de sable placée au-dessus du sol garde son contact aux pieds et son image dans le sol. */
+    static float trapDrawY(Level level, Trap trap) {
+        if (trap instanceof QuickSand && !level.isWall((int) (trap.getX() / Level.TILE),
+                (int) (trap.getY() / Level.TILE))
+                && level.isWall((int) (trap.getX() / Level.TILE),
+                        (int) (trap.getY() / Level.TILE) - 1)) {
+            return trap.getY() - Level.TILE;
+        }
+        return trap.getY();
     }
 
     /** Pièges troll qui doivent être identiques au sol du pays où ils sont posés. */
@@ -582,7 +589,7 @@ public final class PlayScreen extends BaseScreen implements GameListener {
              shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
         } else {
             shapeRenderer.setColor(0.85f, 0.75f, 0.2f, 1f);
-            shapeRenderer.rect(trap.getX(), trap.getY(), trap.getWidth(), trap.getHeight());
+            shapeRenderer.rect(trap.getX(), trapDrawY(level, trap), trap.getWidth(), trap.getHeight());
         }
     }
     }
