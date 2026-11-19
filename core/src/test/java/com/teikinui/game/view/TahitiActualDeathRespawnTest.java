@@ -60,6 +60,7 @@ class TahitiActualDeathRespawnTest {
             set(screen, "themeKey", "tahiti");
             set(screen, "playerSprites", UNSAFE.allocateInstance(PlayerSprites.class));
             set(screen, "taunt", UNSAFE.allocateInstance(TauntBubble.class));
+            set(screen, "skyCountdown", UNSAFE.allocateInstance(SkyCountdown.class));
             set(screen, "levels", new LevelManager(LevelTheme.TAHITI));
             set(screen, "session", new GameSession());
             set(screen, "timer", new GameTimer());
