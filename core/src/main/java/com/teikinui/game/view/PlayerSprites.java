@@ -9,7 +9,7 @@ import com.badlogic.gdx.utils.Array;
 public final class PlayerSprites {
     public enum State {
         IDLE("idle", 0.25f, Animation.PlayMode.LOOP),
-        WALK("walk", 0.10f, Animation.PlayMode.LOOP),
+        WALK("walk", 0.07f, Animation.PlayMode.LOOP),
         JUMP("jump", 0.12f, Animation.PlayMode.NORMAL),
         DIE("die", 0.10f, Animation.PlayMode.NORMAL);
 
